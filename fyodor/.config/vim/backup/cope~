@@ -1,0 +1,30 @@
+#!/bin/zsh
+
+if [ -z "$1" ]
+then
+	echo "Usage: $0 program"
+	exit 1
+fi
+
+dir="/home/jac/bin/cope_bin"
+bin="$1"
+shift
+
+real=false
+for bins in `ls $dir`
+do
+	if [ "$bin" = "$bins" ]
+	then
+		real=true
+	fi
+done
+
+if [ "$real" = "false" ]
+then
+	echo "Usage: $0 program"
+	exit 1
+fi
+
+sh -c "$dir/$bin $*"
+
+exit 0

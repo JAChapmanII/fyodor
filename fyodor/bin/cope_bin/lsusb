@@ -1,0 +1,9 @@
+#!/usr/bin/env perl
+use App::Cope;
+
+sub process {
+  line qr{^(Bus\s\d+)\s(Device\s\d+:)\s(ID .{4}:.{4})} => 'cyan bold', 'cyan', 'blue';
+}
+
+chomp( my $realpath = `which lsusb` );
+run( \&process, $realpath, @ARGV );

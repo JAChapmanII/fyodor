@@ -1,0 +1,16 @@
+#!/usr/bin/env perl
+use App::Cope;
+
+my $time_regex = qr{^
+		    (?:(\d{4}-\d{2}-\d{2})\s)? # possible date
+		    ([\d:]+)(\.\d+)	       # time part
+		 }x;
+
+sub process {
+  line $time_regex => 'cyan', 'green bold', 'green';
+  line qr{(?:\d+\s|^\s+)(ARP|IP)[\s,]} => { IP => 'cyan', ARP => 'magenta' };
+  line qr{(\S+)(\.\S+) > (\S+)(\.\S+)} => 'yellow', 'yellow bold', 'blue', 'blue bold';
+}
+
+chomp( my $realpath = `which tcpdump` );
+run( \&process, $realpath, @ARGV );

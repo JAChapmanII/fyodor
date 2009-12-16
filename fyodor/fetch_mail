@@ -15,10 +15,12 @@ maildir="Mail"
 inbox="GMail/INBOX"
 cpto="new"
 logfile="sync.log"
+errorfile="error.log"
 tmp="tmp"
 tendashes="----------"
 fortydashes="${tendashes}${tendashes}${tendashes}${tendashes}"
 eightydashes="${fortydashes}${fortydashes}"
+savelines="1048576"
 
 [ -d $maildir ] || mkdir -p $maildir
 [ -d $maildir/$cpto ] || mkdir -p $maildir/$cpto
@@ -42,6 +44,7 @@ do
 	$(echo $messages >> $logfile)
 	if [ "x`echo $messages | grep 'err'`" != "x" ]
 	then
+		$(echo $messages >> $errorfile)
 		echo "$timestamp There seems to have been an error."
 		echo $messages
 		exit 1
@@ -53,8 +56,9 @@ do
 		mv $inbox/new/* $inbox/cur/
 		echo "$timestamp Fetching mail..."
 	fi
-	$(rm $tmp)
 	$(echo "$eightydashes" >> $logfile)
+	$(tail -n$savelines $logfile > $tmp)
+	$(mv $tmp $logfile)
 
 	sleep 2
 done

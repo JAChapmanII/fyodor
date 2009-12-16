@@ -1,0 +1,15 @@
+#!/bin/zsh
+
+dt="`date +'%y.%m.%d.%H.%M.%S.%N'`"
+archive="home_fyodor.bak.$dt.tar.gz"
+
+echo "The date is currently: $dt"
+echo "Commiting the current repo so that we have a backup"
+git -a -m "Pushing current to live on $dt"
+echo "Tar'ing up /home/fyodor for safe keeping in $archive"
+sudo tar -cvf "$archive" /home/fyodor
+echo "Removing everyithng that was in /home/fyodor"
+sudo rm -Rv /home/fydor/*
+echo "Pushing fyodor to /home"
+sudo cp -Rv fyodor /home
+echo "New version installed!"

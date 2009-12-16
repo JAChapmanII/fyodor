@@ -13,26 +13,39 @@ fi
 
 maildir="Mail"
 inbox="GMail/INBOX"
-cpto="Fyodor"
+cpto="new"
 logfile="sync.log"
 
 [ -d $maildir ] || mkdir -p $maildir
 [ -d $maildir/$cpto ] || mkdir -p $maildir/$cpto
 :>> $maildir/$logfile
 
-
 pushd $maildir
+
+ctime="$(date +'%y:%m:%d:%H:%M:%S:%N')"
+timestamp="[$ctime]"
+
+echo "$timestamp Fetching mail..."
 while true
 do
-	echo "Fetching mail..."
+	ctime="$(date +'%y:%m:%d:%H:%M:%S:%N')"
+	timestamp="[$ctime]"
 	messages=$(offlineimap -qo -u Machine.MachineUI)
 	$(echo $messages >> $logfile)
 	if [ "x`echo $messages | grep 'err'`" != "x" ]
 	then
-		echo "There seems to have been an error."
+		echo "$timestamp There seems to have been an error."
 		echo $messages
 		exit 1
 	fi
+	if [ "x`ls $inbox/new`" != "x" ]
+	then
+		echo "$timestamp New mail!"
+		cp $inbox/new/* $cpto
+		mv $inbox/new/* $inbox/cur/
+		echo "$timestamp Mail sync'd"
+	fi
+
 	sleep 2
 done
 popd

@@ -1,3 +1,5 @@
+cd ~
+
 # use the "most" pager if it's available
 if [[ -x $(which most) ]]; then
     export PAGER=most

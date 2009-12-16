@@ -1,5 +1,12 @@
 #!/bin/zsh
 
+if [ "`pwd`" != "/home/jac/src/multi/fyodor" ]
+then
+	echo "Please make sure you're in the right directory, \
+or this could get sticky."
+	exit 1
+fi
+
 dt="`date +'%y.%m.%d.%H.%M.%S.%N'`"
 archive="home_fyodor.bak.$dt.tar.gz"
 set -A dirs \

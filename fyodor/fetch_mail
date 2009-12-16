@@ -16,6 +16,9 @@ inbox="GMail/INBOX"
 cpto="new"
 logfile="sync.log"
 tmp="tmp"
+tendashes="----------"
+fortydashes="${tendashes}${tendashes}${tendashes}${tendashes}"
+eightydashes="${fortydashes}${fortydashes}"
 
 [ -d $maildir ] || mkdir -p $maildir
 [ -d $maildir/$cpto ] || mkdir -p $maildir/$cpto
@@ -32,7 +35,7 @@ while true
 do
 	ctime="$(date +'%y:%m:%d:%H:%M:%S:%N')"
 	timestamp="[$ctime]"
-	{ $(offlineimap -qo -u Machine.MachineUI) } &> $tmp
+	{ offlineimap -qo -u Machine.MachineUI } &> $tmp
 	sed -i '/^\/usr\/lib\/python2.6\/site-packages\/offlineimap\// d' $tmp
 	sed -i '/self.sslobj = socket.ssl(self.sock,/ d' $tmp
 	messages="$(cat $tmp)"
@@ -51,6 +54,7 @@ do
 		echo "$timestamp Fetching mail..."
 	fi
 	$(rm $tmp)
+	$(echo "$eightydashes" >> $logfile)
 
 	sleep 2
 done

@@ -15,7 +15,7 @@ set -A dirs \
 echo "The date is currently: $dt"
 echo "Commiting the current repo so that we have a backup"
 git commit -a -m "Pushing current to live on $dt"
-echo "Tar'ing up /home/fyodor for safe keeping in $archive"
+echo "Tar'ing up /home/fyodor for safe keeping"
 sudo tar -cf "$archive" /home/fyodor
 mkdir -p fyodor_tmp
 for dir in $dirs

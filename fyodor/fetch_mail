@@ -15,10 +15,12 @@ maildir="Mail"
 inbox="GMail/INBOX"
 cpto="new"
 logfile="sync.log"
+tmp="tmp"
 
 [ -d $maildir ] || mkdir -p $maildir
 [ -d $maildir/$cpto ] || mkdir -p $maildir/$cpto
 :>> $maildir/$logfile
+:> $maildir/$tmp
 
 pushd $maildir
 
@@ -30,7 +32,9 @@ while true
 do
 	ctime="$(date +'%y:%m:%d:%H:%M:%S:%N')"
 	timestamp="[$ctime]"
-	messages=$(offlineimap -qo -u Machine.MachineUI)
+	{ $(offlineimap -qo -u Machine.MachineUI) } 2> $tmp
+	sed -i '/^\/usr\/lib\/python2.6\/site-packages\/offlineimap\// d' $tmp
+	messages=$(cat $tmp)
 	$(echo $messages >> $logfile)
 	if [ "x`echo $messages | grep 'err'`" != "x" ]
 	then
@@ -40,11 +44,12 @@ do
 	fi
 	if [ "x`ls $inbox/new`" != "x" ]
 	then
-		echo "$timestamp New mail!"
+		echo "$timestamp     New mail!"
 		cp $inbox/new/* $cpto
 		mv $inbox/new/* $inbox/cur/
-		echo "$timestamp Mail sync'd"
+		echo "$timestamp Fetching mail..."
 	fi
+	$(rm $tmp)
 
 	sleep 2
 done

@@ -34,6 +34,7 @@ do
 	timestamp="[$ctime]"
 	{ $(offlineimap -qo -u Machine.MachineUI) } 2> $tmp
 	sed -i '/^\/usr\/lib\/python2.6\/site-packages\/offlineimap\// d' $tmp
+	sed -i '/self.sslobj = socket.ssl(self.sock,/ d' $tmp
 	messages=$(cat $tmp)
 	$(echo $messages >> $logfile)
 	if [ "x`echo $messages | grep 'err'`" != "x" ]

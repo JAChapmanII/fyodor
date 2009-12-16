@@ -26,4 +26,6 @@ do
 	mv fyodor_tmp/$dir /home/fyodor
 done
 rmdir fyodor_tmp
+echo "Changing the ownership on /home/fyodor so Fyodor can read/write them"
+sudo chown -R fyodor:users /home/fyodor
 echo "New version installed!"

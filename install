@@ -7,6 +7,8 @@ or this could get sticky."
 	exit 1
 fi
 
+[ -d fyodor.bak ] || mkdir -p fyodor.bak
+
 dt="`date +'%y.%m.%d.%H.%M.%S.%N'`"
 archive="home_fyodor.bak.$dt.tar.gz"
 set -A dirs \
@@ -16,7 +18,7 @@ echo "The date is currently: $dt"
 echo "Commiting the current repo so that we have a backup"
 git commit -a -m "Pushing current to live on $dt"
 echo "Tar'ing up /home/fyodor for safe keeping"
-sudo tar -cf "$archive" /home/fyodor
+sudo tar -cf "fyodor.bak/$archive" /home/fyodor
 mkdir -p fyodor_tmp
 for dir in $dirs
 do

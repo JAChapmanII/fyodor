@@ -1,20 +1,40 @@
 #!/bin/zsh
 
-if [ ! -z "`pgrep fetch_mail`" ] or [ ! -z "`pgrep offlineimap`" ]
+if [ ! -z "`pgrep offlineimap`" ]
 then
-	echo "Either this script or offlineimap is currently running, exiting"
+	echo "Offlineimap is currently running, exiting"
+	exit 1
+fi
+if [ `pgrep fetch_mail | wc -l` -gt 1 ]
+then
+	echo "This script is currently running, exiting"
 	exit 1
 fi
 
+maildir="Mail"
+inbox="GMail/INBOX"
+cpto="Fyodor"
+logfile="sync.log"
+
+[ -d $maildir ] || mkdir -p $maildir
+[ -d $maildir/$cpto ] || mkdir -p $maildir/$cpto
+:>> $maildir/$logfile
+
+
+pushd $maildir
 while true
 do
 	echo "Fetching mail..."
-	errors=$(offlineimap -qo -u Noninteractive.Quiet)
-	if [ ! -z "$errors" ]
+	messages=$(offlineimap -qo -u Machine.MachineUI)
+	$(echo $messages >> $logfile)
+	if [ "x`echo $messages | grep 'err'`" != "x" ]
 	then
-		echo "Serious fucking errors!"
-		echo $errors
+		echo "There seems to have been an error."
+		echo $messages
 		exit 1
 	fi
-	sleep 3
+	sleep 2
 done
+popd
+
+exit 0

@@ -2,14 +2,28 @@
 
 dt="`date +'%y.%m.%d.%H.%M.%S.%N'`"
 archive="home_fyodor.bak.$dt.tar.gz"
+set -A dirs \
+	"/home/fyodor/Mail"
 
 echo "The date is currently: $dt"
 echo "Commiting the current repo so that we have a backup"
 git -a -m "Pushing current to live on $dt"
 echo "Tar'ing up /home/fyodor for safe keeping in $archive"
 sudo tar -cvf "$archive" /home/fyodor
+mkdir -p fyodor_tmp
+for dir in $dirs
+do
+	echo "Moving $dir to a temporary safe location"
+	mv $dir fyodor_tmp
+done
 echo "Removing everyithng that was in /home/fyodor"
 sudo rm -Rv /home/fydor/*
 echo "Pushing fyodor to /home"
 sudo cp -Rv fyodor /home
+for dir in `ls fydor_tmp`
+do
+	echo "Moving $dir back into place"
+	mv $dir /home/fyodor
+done
+rmdir fyodor_tmp
 echo "New version installed!"

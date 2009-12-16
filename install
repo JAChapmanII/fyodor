@@ -3,7 +3,7 @@
 dt="`date +'%y.%m.%d.%H.%M.%S.%N'`"
 archive="home_fyodor.bak.$dt.tar.gz"
 set -A dirs \
-	"Mail/GMail"
+	"Mail"
 
 echo "The date is currently: $dt"
 echo "Commiting the current repo so that we have a backup"

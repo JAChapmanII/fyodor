@@ -32,7 +32,7 @@ while true
 do
 	ctime="$(date +'%y:%m:%d:%H:%M:%S:%N')"
 	timestamp="[$ctime]"
-	{ $(offlineimap -qo -u Machine.MachineUI) } 2> $tmp
+	{ $(offlineimap -qo -u Machine.MachineUI) } &> $tmp
 	sed -i '/^\/usr\/lib\/python2.6\/site-packages\/offlineimap\// d' $tmp
 	sed -i '/self.sslobj = socket.ssl(self.sock,/ d' $tmp
 	messages="$(cat $tmp)"

@@ -23,7 +23,7 @@ sudo cp -Rv fyodor /home
 for dir in `ls fydor_tmp`
 do
 	echo "Moving $dir back into place"
-	mv $dir /home/fyodor
+	mv fyodor_tmp/$dir /home/fyodor
 done
 rmdir fyodor_tmp
 echo "New version installed!"

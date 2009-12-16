@@ -17,7 +17,7 @@ do
 	mv /home/fyodor/$dir fyodor_tmp
 done
 echo "Removing everyithng that was in /home/fyodor"
-sudo rm -R /home/fydor/*
+sudo rm -R /home/fydor/
 echo "Pushing fyodor to /home"
 sudo cp -R fyodor /home
 for dir in $dirs

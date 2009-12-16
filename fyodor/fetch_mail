@@ -1,0 +1,20 @@
+#!/bin/zsh
+
+if [ ! -z "`pgrep fetch_mail`" ] or [ ! -z "`pgrep offlineimap`" ]
+then
+	echo "Either this script or offlineimap is currently running, exiting"
+	exit 1
+fi
+
+while true
+do
+	echo "Fetching mail..."
+	errors=$(offlineimap -qo -u Noninteractive.Quiet)
+	if [ ! -z "$errors" ]
+	then
+		echo "Serious fucking errors!"
+		echo $errors
+		exit 1
+	fi
+	sleep 3
+done

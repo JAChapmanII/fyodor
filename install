@@ -69,7 +69,7 @@ or this could get sticky."
 fi
 
 commit="$(git status | grep "(working directory clean)")"
-if [ "x$commit" != "x" ]
+if [ "x$commit" = "x" ]
 then
 	error "There are things needing to be commited in git."
 	exit 1

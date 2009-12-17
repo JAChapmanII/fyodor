@@ -91,6 +91,7 @@ do
 		exit 1
 	fi
 done
+popd
 
 note "The date is currently: $dt"
 message "Tar'ing up /home/fyodor for safe keeping"

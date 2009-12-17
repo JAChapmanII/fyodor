@@ -1,0 +1,4 @@
+#!/bin/zsh
+
+echo "Parsing mail..."
+exit 1

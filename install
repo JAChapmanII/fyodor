@@ -68,7 +68,12 @@ or this could get sticky."
 	exit 1
 fi
 
-commit="$(
+commit="$(git status | grep "(working directory clean)")"
+if [ "x$commit" != "x" ]
+then
+	error "There are things needing to be commited in git."
+	exit 1
+fi
 
 [ -d fyodor.bak ] || mkdir -p fyodor.bak
 
@@ -78,8 +83,6 @@ set -A dirs \
 	"Mail" "new" "process" "processed"
 
 note "The date is currently: $dt"
-message "Commiting the current repo so that we have a backup"
-git commit -a -m "Pushing current to live on $dt"
 message "Tar'ing up /home/fyodor for safe keeping"
 sudo tar -cf "fyodor.bak/$archive" /home/fyodor
 mkdir -p fyodor_tmp

@@ -34,6 +34,25 @@ bakcyn='\e[46m'   # Cyan
 bakwht='\e[47m'   # White
 txtrst='\e[0m'    # Text Reset
 
+home="/home/fyodor"
+maildir="Mail"
+inbox="GMail/INBOX"
+parsebox="new"
+processbox="process"
+processed="processed"
+logextension=".log"
+tendashes="----------"
+fortydashes="${tendashes}${tendashes}${tendashes}${tendashes}"
+eightydashes="${fortydashes}${fortydashes}"
+savelines="1048576"
+
+pushd $home
+[ -d $maildir ] 		|| mkdir -p $maildir
+[ -d $maildir/$inbox ]	|| mkdir -p $maildir/$inbox
+[ -d $parsebox ]		|| mkdir -p $parsebox
+[ -d $processbox ]		|| mkdir -p $processbox
+[ -d $processed ]		|| mkdir -p $processed
+
 ctime="$(date +'%y:%m:%d:%H:%M:%S:%N')"
 timestamp="[$ctime]"
 
@@ -60,44 +79,3 @@ function note ()
 	update_time
 	echo "${txtblu}${timestamp}${txtrst} $*"
 }
-
-if [ "`pwd`" != "/home/jac/src/multi/fyodor" ]
-then
-	error "Please make sure you're in the right directory,
-or this could get sticky."
-	exit 1
-fi
-
-commit="$(
-
-[ -d fyodor.bak ] || mkdir -p fyodor.bak
-
-dt="`date +'%y.%m.%d.%H.%M.%S.%N'`"
-archive="home_fyodor.bak.$dt.tar.gz"
-set -A dirs \
-	"Mail" "new" "process" "processed"
-
-note "The date is currently: $dt"
-message "Commiting the current repo so that we have a backup"
-git commit -a -m "Pushing current to live on $dt"
-message "Tar'ing up /home/fyodor for safe keeping"
-sudo tar -cf "fyodor.bak/$archive" /home/fyodor
-mkdir -p fyodor_tmp
-for dir in $dirs
-do
-	note "Moving $dir to a temporary safe location"
-	mv /home/fyodor/$dir fyodor_tmp
-done
-message "Removing everyithng that was in /home/fyodor"
-sudo rm -R /home/fyodor/
-message "Pushing fyodor to /home"
-sudo cp -R fyodor /home
-for dir in $dirs
-do
-	note "Moving $dir back into place"
-	mv fyodor_tmp/$dir /home/fyodor
-done
-rmdir fyodor_tmp
-message "Changing the ownership on /home/fyodor so Fyodor can read/write them"
-sudo chown -R fyodor:users /home/fyodor
-note "New version installed!"

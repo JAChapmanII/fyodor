@@ -11,16 +11,8 @@ then
 	exit 1
 fi
 
-maildir="Mail"
-inbox="GMail/INBOX"
-cpto="new"
+. ~/global
 logfile="sync.log"
-errorfile="error.log"
-tmp="tmp"
-tendashes="----------"
-fortydashes="${tendashes}${tendashes}${tendashes}${tendashes}"
-eightydashes="${fortydashes}${fortydashes}"
-savelines="1048576"
 
 [ -d $maildir ] || mkdir -p $maildir
 [ -d $maildir/$cpto ] || mkdir -p $maildir/$cpto
@@ -29,14 +21,9 @@ savelines="1048576"
 
 pushd $maildir
 
-ctime="$(date +'%y:%m:%d:%H:%M:%S:%N')"
-timestamp="[$ctime]"
-
-echo "$timestamp Fetching mail..."
+message "Fetching mail..."
 while true
 do
-	ctime="$(date +'%y:%m:%d:%H:%M:%S:%N')"
-	timestamp="[$ctime]"
 	{ offlineimap -qo -u Machine.MachineUI } &> $tmp
 	sed -i '/^\/usr\/lib\/python2.6\/site-packages\/offlineimap\// d' $tmp
 	sed -i '/self.sslobj = socket.ssl(self.sock,/ d' $tmp
@@ -45,16 +32,16 @@ do
 	if [ "x`echo $messages | grep 'err'`" != "x" ]
 	then
 		$(echo $messages >> $errorfile)
-		echo "$timestamp There seems to have been an error."
+		error "There seems to have been an error."
 		echo $messages
 		exit 1
 	fi
 	if [ "x`ls $inbox/new`" != "x" ]
 	then
-		echo "$timestamp     New mail!"
+		message "    New mail!"
 		cp $inbox/new/* $cpto
 		mv $inbox/new/* $inbox/cur/
-		echo "$timestamp Fetching mail..."
+		note "Fetching mail..."
 	fi
 	$(echo "$eightydashes" >> $logfile)
 	$(tail -n$savelines $logfile > $tmp)

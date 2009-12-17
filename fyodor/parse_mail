@@ -1,4 +1,10 @@
 #!/bin/zsh
 
-echo "Parsing mail..."
-exit 1
+. ./global
+
+message "Begining parse'ing..."
+for file in $(ls $parsebox)
+do
+	note "    We have a message: $file"
+done
+error "This program does nothing, kind of an error, I think."

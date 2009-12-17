@@ -82,6 +82,16 @@ archive="home_fyodor.bak.$dt.tar.gz"
 set -A dirs \
 	"Mail" "new" "process" "processed"
 
+pushd fyodor
+for dir in dirs
+do
+	if [ -d "$dir" ]
+	then
+		error "$dir exists in fyodor, but it is something kept over from old"
+		exit 1
+	fi
+done
+
 note "The date is currently: $dt"
 message "Tar'ing up /home/fyodor for safe keeping"
 sudo tar -cf "fyodor.bak/$archive" /home/fyodor

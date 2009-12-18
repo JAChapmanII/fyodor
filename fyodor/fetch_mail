@@ -47,7 +47,7 @@ do
 	else
 		if [ "$pnonew" = true ]
 		then
-			print_note "  No new mail"
+			print_note "No new mail"
 			pnonew=false
 		fi
 	fi

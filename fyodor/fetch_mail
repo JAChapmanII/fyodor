@@ -13,6 +13,7 @@ fi
 
 . ~/global
 logfile="sync.log"
+tmp="fetch.tmp"
 
 [ -d $maildir ] || mkdir -p $maildir
 [ -d $maildir/$cpto ] || mkdir -p $maildir/$cpto
@@ -21,7 +22,7 @@ logfile="sync.log"
 
 pushd $maildir
 
-message "Fetching mail..."
+print_message "Fetching mail..."
 while true
 do
 	{ offlineimap -qo -u Machine.MachineUI } &> $tmp
@@ -32,16 +33,16 @@ do
 	if [ "x`echo $messages | grep 'err'`" != "x" ]
 	then
 		$(echo $messages >> $errorfile)
-		error "There seems to have been an error."
+		print_error "There seems to have been an error."
 		echo $messages
 		exit 1
 	fi
 	if [ "x`ls $inbox/new`" != "x" ]
 	then
-		message "    New mail!"
+		print_message "    New mail!"
 		cp $inbox/new/* $cpto
 		mv $inbox/new/* $inbox/cur/
-		note "Fetching mail..."
+		print_note "Fetching mail..."
 	fi
 	$(echo "$eightydashes" >> $logfile)
 	$(tail -n$savelines $logfile > $tmp)

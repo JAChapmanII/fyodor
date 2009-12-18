@@ -1,0 +1,47 @@
+#!/bin/zsh
+
+. ~/.config/zsh/functions.zsh
+
+if [ "$(pwd)" != "/home/jac/src/multi/fyodor" ]
+then
+	print_error "You're in the wrong dir, try the right one"
+	exit 1
+fi
+
+[ -d fyodor.bak ] || mkdir -p fyodor.bak
+if [ ! -f "fyodor.bak/$1" ]
+then
+	print_error "That backup does not actually exist, lo siento"
+	exit 1
+fi
+
+dt="`date +'%y.%m.%d.%H.%M.%S.%N'`"
+archive="home_fyodor.bak.$dt.tar.gz"
+
+print_message "Backing up current /home/fyodor"
+sudo tar -cf "fyodor.bak/$archive" /home/fyodor
+if [ ! -f fyodor.bak/$archive ]
+then
+	print_error "Backup failed, exiting"
+	exit 1
+fi
+
+print_message "Removing everyithng that was in /home/fyodor"
+sudo rm -R /home/fyodor/
+
+print_message "Extracting backup"
+pushd fyodor.bak
+sudo tar -xf $1
+
+print_message "Pushing backup to /home"
+sudo cp -R home/fyodor /home
+
+print_message "Changing the ownership on /home/fyodor so \
+Fyodor can read/write them"
+sudo chown -R fyodor:users /home/fyodor
+
+print_message "Removing extracted backup"
+rm -r home
+
+print_note "Succesful"
+

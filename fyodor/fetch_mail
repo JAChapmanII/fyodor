@@ -23,6 +23,7 @@ tmp="fetch.tmp"
 pushd $maildir
 
 print_message "Fetching mail..."
+pnonew=true
 while true
 do
 	{ offlineimap -qo -u Machine.MachineUI } &> $tmp
@@ -39,10 +40,17 @@ do
 	fi
 	if [ "x`ls $inbox/new`" != "x" ]
 	then
-		print_message "    New mail!"
-		cp $inbox/new/* $cpto
+		print_warn "    New mail!"
+		pnonew=true
+		cp $inbox/new/* ~/$parsebox
 		mv $inbox/new/* $inbox/cur/
 		print_note "Fetching mail..."
+	else
+		if [ "$pnonew" = true ]
+		then
+			print_note "  No new mail"
+			pnonew=false
+		fi
 	fi
 	$(echo "$eightydashes" >> $logfile)
 	$(tail -n$savelines $logfile > $tmp)

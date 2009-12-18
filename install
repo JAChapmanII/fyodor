@@ -1,69 +1,10 @@
 #!/bin/zsh
 
-txtblk='\e[0;30m' # Black - Regular
-txtred='\e[0;31m' # Red
-txtgrn='\e[0;32m' # Green
-txtylw='\e[0;33m' # Yellow
-txtblu='\e[0;34m' # Blue
-txtpur='\e[0;35m' # Purple
-txtcyn='\e[0;36m' # Cyan
-txtwht='\e[0;37m' # White
-bldblk='\e[1;30m' # Black - Bold
-bldred='\e[1;31m' # Red
-bldgrn='\e[1;32m' # Green
-bldylw='\e[1;33m' # Yellow
-bldblu='\e[1;34m' # Blue
-bldpur='\e[1;35m' # Purple
-bldcyn='\e[1;36m' # Cyan
-bldwht='\e[1;37m' # White
-unkblk='\e[4;30m' # Black - Underline
-undred='\e[4;31m' # Red
-undgrn='\e[4;32m' # Green
-undylw='\e[4;33m' # Yellow
-undblu='\e[4;34m' # Blue
-undpur='\e[4;35m' # Purple
-undcyn='\e[4;36m' # Cyan
-undwht='\e[4;37m' # White
-bakblk='\e[40m'   # Black - Background
-bakred='\e[41m'   # Red
-badgrn='\e[42m'   # Green
-bakylw='\e[43m'   # Yellow
-bakblu='\e[44m'   # Blue
-bakpur='\e[45m'   # Purple
-bakcyn='\e[46m'   # Cyan
-bakwht='\e[47m'   # White
-txtrst='\e[0m'    # Text Reset
-
-ctime="$(date +'%y:%m:%d:%H:%M:%S:%N')"
-timestamp="[$ctime]"
-
-function update_time ()
-{
-	ctime="$(date +'%y:%m:%d:%H:%M:%S:%N')"
-	timestamp="[$ctime]"
-}
-
-function message ()
-{
-	update_time
-	echo "${txtgrn}${timestamp}${txtrst} $*"
-}
-
-function error ()
-{
-	update_time
-	echo "${txtred}${timestamp}${txtrst} $*"
-}
-
-function note ()
-{
-	update_time
-	echo "${txtcyn}${timestamp}${txtrst} $*"
-}
+. ~/.config/zsh/functions.zsh
 
 if [ "`pwd`" != "/home/jac/src/multi/fyodor" ]
 then
-	error "Please make sure you're in the right directory,
+	print_error "Please make sure you're in the right directory,
 or this could get sticky."
 	exit 1
 fi
@@ -71,7 +12,7 @@ fi
 commit="$(git status | grep "(working directory clean)")"
 if [ "x$commit" = "x" ]
 then
-	error "There are things needing to be commited in git."
+	print_error "There are things needing to be commited in git."
 	exit 1
 fi
 
@@ -87,39 +28,41 @@ for dir in dirs
 do
 	if [ -d "$dir" ]
 	then
-		error "$dir exists in fyodor, but it is something kept over from old"
+		print_error "$dir exists in fyodor, but it is something kept \
+\	\	over from old"
 		exit 1
 	fi
 done
 popd
 
-note "The date is currently: $dt"
+print_note "The date is currently: $dt"
 
-message "Tar'ing up /home/fyodor for safe keeping"
+print_message "Tar'ing up /home/fyodor for safe keeping"
 [ -d fyodor.bak ] || mkdir -p fyodor.bak
 sudo tar -cf "fyodor.bak/$archive" /home/fyodor
 if [ ! -f fyodor.bak/$archive ]
 then
-	error "Backup failed, exiting"
+	print_error "Backup failed, exiting"
 	exit 1
 fi
 
 mkdir -p fyodor_tmp
 for dir in $dirs
 do
-	note "Moving $dir to a temporary safe location"
+	print_note "Moving $dir to a temporary safe location"
 	mv /home/fyodor/$dir fyodor_tmp
 done
-message "Removing everyithng that was in /home/fyodor"
+print_message "Removing everyithng that was in /home/fyodor"
 sudo rm -R /home/fyodor/
-message "Pushing fyodor to /home"
+print_message "Pushing fyodor to /home"
 sudo cp -R fyodor /home
 for dir in $dirs
 do
-	note "Moving $dir back into place"
+	print_note "Moving $dir back into place"
 	mv fyodor_tmp/$dir /home/fyodor
 done
 rmdir fyodor_tmp
-message "Changing the ownership on /home/fyodor so Fyodor can read/write them"
+print_message "Changing the ownership on /home/fyodor so \
+Fyodor can read/write them"
 sudo chown -R fyodor:users /home/fyodor
-note "New version installed!"
+print_note "New version installed!"

@@ -44,7 +44,6 @@ do
 		pnonew=true
 		cp $inbox/new/* ~/$parsebox
 		mv $inbox/new/* $inbox/cur/
-		print_note "Fetching mail..."
 	else
 		if [ "$pnonew" = true ]
 		then

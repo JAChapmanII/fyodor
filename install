@@ -58,7 +58,7 @@ function error ()
 function note ()
 {
 	update_time
-	echo "${txtblu}${timestamp}${txtrst} $*"
+	echo "${txtcyn}${timestamp}${txtrst} $*"
 }
 
 if [ "`pwd`" != "/home/jac/src/multi/fyodor" ]
@@ -94,8 +94,16 @@ done
 popd
 
 note "The date is currently: $dt"
+
 message "Tar'ing up /home/fyodor for safe keeping"
+[ -d fyodor.bak ] || mkdir -p fyodor.bak
 sudo tar -cf "fyodor.bak/$archive" /home/fyodor
+if [ ! -f fyodor.bak/$archive ]
+then
+	error "Backup failed, exiting"
+	exit 1
+fi
+
 mkdir -p fyodor_tmp
 for dir in $dirs
 do

@@ -30,7 +30,7 @@ set -A dirs \
 	"Mail" "new" "process" "processed"
 
 pushd fyodor
-for dir in dirs
+for dir in $dirs
 do
 	if [ -d "$dir" ]
 	then

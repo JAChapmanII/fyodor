@@ -10,14 +10,20 @@ do
 	head -n1 | awk '{ print $2 }')"
 	date="$(cat $parsebox/$file | grep "Date:" | head -n1 | 
 	sed -e 's/Date://g' -e 's/^[ \t]*//' -e 's/[ \t]*$//')"
+	print_note "Address is: $address"
+	print_note "Date    is: $date"
 
 	message="$(cat new/$file | sed '1,/^$/ d')"
+	if [ -z "$message" ]
+	then
+		print_error "This email is not formatted properly or has no message."
+		print_error "The message could be: $(tail -n1 $parsebox/$file)"
+		continue
+	fi
 	command="$(echo $message | awk '{ print $1 }' | sed 's/://')"
 	arguments="$(echo $message | 
 	sed -e "s/$command//" -e 's/^[ \t]*//' -e 's/[ \t]*$//')"
 
-	print_note "Address is: $address"
-	print_note "Date    is: $date"
 	print_note "Message is: $message"
 	print_note "Command is: $command"
 	print_note "Argsary is: $arguments"

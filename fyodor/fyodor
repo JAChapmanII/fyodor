@@ -1,0 +1,13 @@
+#!/bin/zsh
+
+. $XDG_CONFIG_HOME/zsh/functions.zsh
+
+function help() {
+	print_error "There is no helping you."
+}
+
+function poop() {
+	print_message "This is a duece."
+}
+
+eval "$1"

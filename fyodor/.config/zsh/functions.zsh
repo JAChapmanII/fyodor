@@ -37,7 +37,7 @@ txtrst='\e[0m'    # Text Reset }}}
 
 function update_time ()
 {
-	ctime="$(date +'%y:%m:%d:%H:%M:%S:%N')"
+	ctime="$(date +'%d|%H:%M:%S')"
 	timestamp="[$ctime]"
 }
 

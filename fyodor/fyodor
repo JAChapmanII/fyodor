@@ -2,6 +2,26 @@
 
 . $XDG_CONFIG_HOME/zsh/functions.zsh
 
+verbose=false
+for arg in $@
+do
+	case "$arg" in
+		-v|--verbose)
+			verbose=true
+			;;
+		-q|--quiet)
+			verbose=false
+			;;
+		-r|--reprocess)
+			if [ "$(ls -A $processed)" != "" ]
+			then
+				mv $processed/ $parsebox
+			fi
+		*)
+			;;
+	esac
+done
+
 function help() {
 	print_error "There is no helping you."
 }
@@ -65,7 +85,7 @@ do
 		if [ ! -z "$command" ]
 		then
 			{ eval '$command "$arguments"' } 2> $tmp
-			if [[ "$(wc -l $tmp | awk '{print $1}')" -ge "0" ]]
+			if [[ "$(wc -l $tmp | awk '{print $1}')" -gt "0" ]]
 			then
 				print_error "Command not found"
 				print_error "$(cat $tmp)"

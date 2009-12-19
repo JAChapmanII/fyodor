@@ -65,7 +65,7 @@ do
 		if [ ! -z "$command" ]
 		then
 			{ eval '$command "$arguments"' } 2> $tmp
-			if [[ "$(wc -l $tmp | awk '{print $1})" -ge "0" ]]
+			if [[ "$(wc -l $tmp | awk '{print $1}')" -ge "0" ]]
 			then
 				print_error "Command not found"
 			else

@@ -17,6 +17,7 @@ do
 			then
 				mv $processed/ $parsebox
 			fi
+			;;
 		*)
 			;;
 	esac

@@ -33,7 +33,7 @@ function parse_message()
 	then
 		print_error "This email is not formatted properly or has no message."
 		print_error "The message could be: $(tail -n1 $parsebox/$file)"
-		continue
+		return 
 	fi
 	command="$(echo $message | awk '{ print $1 }' | sed 's/://')"
 	arguments="$(echo $message | 

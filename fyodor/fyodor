@@ -68,10 +68,10 @@ do
 			if [[ "$(wc -l $tmp | awk '{print $1}')" -ge "0" ]]
 			then
 				print_error "Command not found"
+				print_error "$(cat $tmp)"
 			else
 				print_message "Executed succesfully"
 			fi
-			cat $tmp
 			rm $tmp
 		fi
 		mv $parsebox/$email $processed

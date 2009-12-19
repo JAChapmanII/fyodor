@@ -10,4 +10,11 @@ function poop() {
 	print_message "This is a duece."
 }
 
-eval "$1"
+{ eval "$1" } 2> tmp
+if [ "$(cat tmp | grep 'command not found: ')" != "" ]
+then
+	print_error "Command not found"
+else
+	print_message "Executed succesfully"
+fi
+rm tmp

@@ -54,13 +54,26 @@ function parse_message()
 	print_note "Argsary is: $arguments"
 }
 
-if [ "$(ls -A $functions)" != "" ]
+loaded="loaded_functions"
+[ -d "$loaded" ] || mkdir -p $loaded
+if [ "$(ls -A $loaded)" != "" ]
 then
-	for file in $(ls -A $functions)
-	do
-		. $functions/$file
-	done
+	mv $loaded/* $functions
 fi
+
+function load_functions()
+{
+	if [ "$(ls -A $functions)" != "" ]
+	then
+		for file in $(ls -A $functions)
+		do
+			. $functions/$file
+			mv $functions/$file $loaded
+		done
+	fi
+}
+
+load_functions
 
 tmp="fyodor${tmpextension}"
 while true

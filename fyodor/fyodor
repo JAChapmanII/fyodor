@@ -55,7 +55,7 @@ do
 		arguments=
 
 		print_message "Parsing message..."
-		parse_message $email
+		parse_message $parsebox/$email
 		if [ -z "$command" ]
 		then
 			{ eval "$command $arguments" } 2> $tmp
@@ -67,5 +67,6 @@ do
 			fi
 			rm $tmp
 		fi
+		mv $parsebox/$email $processed
 	done
 done

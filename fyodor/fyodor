@@ -65,7 +65,7 @@ do
 		if [ ! -z "$command" ]
 		then
 			{ eval '$command "$arguments"' } 2> $tmp
-			if [ "$(cat $tmp | grep 'command not found: ')" != "" ]
+			if [[ "$(wc -l $tmp)" -ge "0" ]]
 			then
 				print_error "Command not found"
 			else

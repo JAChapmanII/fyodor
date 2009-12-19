@@ -5,19 +5,21 @@
 print_message "Begining parse'ing..."
 for file in $(ls $parsebox)
 do
-	print_message "    We have a message: $file"
+	print_message "    We have a message!"
 	address="$(cat $parsebox/$file | grep "From:" | 
 	head -n1 | awk '{ print $2 }')"
 	date="$(cat $parsebox/$file | grep "Date:" | head -n1 | 
-	sed -e 's/Date://g' -e 's/[ ]*\([^ ]*\)[ ]*/\1/g')"
-	print_note "On $date recieved message from $address"
+	sed -e 's/Date://g' -e 's/^[ \t]*//' -e 's/[ \t]*$//')"
 
 	message="$(cat new/$file | sed '1,/^$/ d')"
-	command="$(echo \"$message\" | awk '{ print $1 }' | sed 's/://')"
-	arguments="$(echo \"$message\" | sed -e "s/$command//" 
-	-e 's/^[ ]*\([^ ]*\)[ ]*$/\1/g')"
+	command="$(echo $message | awk '{ print $1 }' | sed 's/://')"
+	arguments="$(echo $message | 
+	sed -e "s/$command//" -e 's/^[ \t]*//' -e 's/[ \t]*$//')"
 
+	print_note "Address is: $address"
+	print_note "Date    is: $date"
+	print_note "Message is: $message"
 	print_note "Command is: $command"
-	print_note "Args are: $arguments"
+	print_note "Argsary is: $arguments"
 done
 

@@ -20,6 +20,7 @@ arguments=
 
 function parse_message() 
 {
+	file=$1
 	address="$(cat $parsebox/$file | grep "From:" | 
 	head -n1 | awk '{ print $2 }')"
 	date="$(cat $parsebox/$file | grep "Date:" | head -n1 | 
@@ -55,7 +56,7 @@ do
 		arguments=
 
 		print_message "Parsing message..."
-		parse_message $parsebox/$email
+		parse_message $email
 		if [ -z "$command" ]
 		then
 			{ eval "$command $arguments" } 2> $tmp

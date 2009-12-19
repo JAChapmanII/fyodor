@@ -1,6 +1,7 @@
 #!/bin/zsh
 
 . $XDG_CONFIG_HOME/zsh/functions.zsh
+. ~/global
 
 verbose=false
 for arg in $@
@@ -15,29 +16,17 @@ do
 		-r|--reprocess)
 			if [ "$(ls -A $processed)" != "" ]
 			then
-				mv $processed/ $parsebox
+				mv $processed/* $parsebox
 			fi
 			;;
+		-h|--help)
+			print_message "Usage: $0 -[(v|-verbose)|(q|-quiet)] -(h|-help)"
+			;;
 		*)
+			print_warn "$arg is not a valid argument, use -h for help."
 			;;
 	esac
 done
-
-function help() {
-	print_error "There is no helping you."
-}
-
-function poop() {
-	print_message "This is a duece."
-}
-
-. ~/global
-
-address=
-date= 
-message=
-command=
-arguments=
 
 function parse_message() 
 {
@@ -65,10 +54,13 @@ function parse_message()
 	print_note "Argsary is: $arguments"
 }
 
-function And() 
-{
-	print_error "This executed!"
-}
+if [ "$(ls -A $functions)" != "" ]
+then
+	for file in $(ls -A $functions)
+	do
+		. $functions/$file
+	done
+fi
 
 tmp="fyodor${tmpextension}"
 while true
@@ -80,12 +72,17 @@ do
 		message=
 		command=
 		arguments=
+		reply=
 
 		print_message "Parsing message..."
 		parse_message $email
 		if [ ! -z "$command" ]
 		then
 			{ eval '$command "$arguments"' } 2> $tmp
+			if [ ! -z "$reply" ]
+			then
+				send_message $reply
+			fi
 			if [[ "$(wc -l $tmp | awk '{print $1}')" -gt "0" ]]
 			then
 				print_error "Command not found"

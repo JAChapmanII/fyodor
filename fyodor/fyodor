@@ -44,6 +44,11 @@ function parse_message()
 	print_note "Argsary is: $arguments"
 }
 
+function And() 
+{
+	print_error "This executed!"
+}
+
 tmp="fyodor${tmpextension}"
 while true
 do

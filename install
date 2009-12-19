@@ -34,9 +34,10 @@ for dir in $dirs
 do
 	if [ -d "$dir" ]
 	then
-		print_error "$dir exists in fyodor, but it is something kept \
+		print_warn "$dir exists in fyodor, but it is something kept \
 over from old"
-		exit 1
+		print_warn "I'm just going to remove it, OK?"
+		rm -r $dir		
 	fi
 done
 popd

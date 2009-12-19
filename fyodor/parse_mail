@@ -2,9 +2,22 @@
 
 . ./global
 
-message "Begining parse'ing..."
+print_message "Begining parse'ing..."
 for file in $(ls $parsebox)
 do
-	note "    We have a message: $file"
+	print_message "    We have a message: $file"
+	address="$(cat $parsebox/$file | grep "From:" | 
+	head -n1 | awk '{ print $2 }')"
+	date="$(cat $parsebox/$file | grep "Date:" | head -n1 | 
+	sed -e 's/Date://g' -e 's/[ ]*\([^ ]*\)[ ]*/\1/g')"
+	print_note "On $date recieved message from $address"
+
+	message="$(cat new/$file | sed '1,/^$/ d')"
+	command="$(echo \"$message\" | awk '{ print $1 }' | sed 's/://')"
+	arguments="$(echo \"$message\" | sed -e "s/$command//" 
+	-e 's/^[ ]*\([^ ]*\)[ ]*$/\1/g')"
+
+	print_note "Command is: $command"
+	print_note "Args are: $arguments"
 done
-error "This program does nothing, kind of an error, I think."
+

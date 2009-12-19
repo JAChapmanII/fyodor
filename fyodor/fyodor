@@ -71,6 +71,7 @@ do
 			else
 				print_message "Executed succesfully"
 			fi
+			cat $tmp
 			rm $tmp
 		fi
 		mv $parsebox/$email $processed

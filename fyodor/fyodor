@@ -64,7 +64,7 @@ do
 		parse_message $email
 		if [ ! -z "$command" ]
 		then
-			{ eval "$command $arguments" } 2> $tmp
+			{ eval '$command "$arguments"' } 2> $tmp
 			if [ "$(cat $tmp | grep 'command not found: ')" != "" ]
 			then
 				print_error "Command not found"

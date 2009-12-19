@@ -2,6 +2,12 @@
 
 . ~/.config/zsh/functions.zsh
 
+if [ "$UID" -ne "0" ]
+then
+	print_error "You are not root"
+	exit 1
+fi
+
 if [ "`pwd`" != "/home/jac/src/multi/fyodor" ]
 then
 	print_error "Please make sure you're in the right directory,

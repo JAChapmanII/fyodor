@@ -69,6 +69,7 @@ function load_functions()
 		do
 			. $functions/$file
 			mv $functions/$file $loaded
+			print_warn "Function: $file loaded"
 		done
 	fi
 }

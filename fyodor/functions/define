@@ -1,0 +1,58 @@
+#!/bin/zsh
+
+definition_dir="definitions"
+
+function define()
+{
+	pushd $definition_dir
+	for word in $@
+	if [ ! -f "$word" ];
+	then
+		lynx -dump "http://www.google.com/search?q=define: $word" > "$word"
+		cat "$word" | ./def.pl > "${word}.tmp"
+		if [ "`cat \"${word}.tmp\" | grep '*'`" != '' ];
+		then
+			cat "${word}.tmp" | grep '*' > "$word"
+		else
+			mv "${word}.tmp" "$word"
+		fi
+		cat "$word"
+	else
+		cat "$word"
+	fi
+	popd
+}
+
+function def()
+{
+	define $*
+}
+
+function redefine()
+{
+	pushd $definition_dir
+	for arg in $@
+	do
+		if [ -f "$arg" ]
+		then
+			rm "$arg"
+		fi
+	done
+	popd
+	define $*
+}
+
+function rdef()
+{
+	pushd $definition_dir
+	for arg in $@
+	do
+		if [ -f "$arg" ]
+		then
+			rm "$arg"
+		fi
+	done
+	popd
+	define $*
+}
+	

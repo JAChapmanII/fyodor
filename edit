@@ -1,2 +1,2 @@
 #!/bin/zsh
-vim $(find ./ -maxdepth 2 -type f | sed 's_^./__' | grep -v '\.')
+vim $(find ./ -maxdepth 2 -type f | sed 's_^./__' | grep -v '\.') $(find ./fyodor/functions/ -type f)

@@ -58,17 +58,17 @@ loaded="loaded_functions"
 [ -d "$loaded" ] || mkdir -p $loaded
 if [ "$(ls -A $loaded)" != "" ]
 then
-	mv $loaded/* $functions
+	mv $loaded/* $functions_dir
 fi
 
 function load_functions()
 {
-	if [ "$(ls -A $functions)" != "" ]
+	if [ "$(ls -A $functions_dir)" != "" ]
 	then
-		for file in $(ls -A $functions)
+		for file in $(ls -A $functions_dir)
 		do
-			. $functions/$file
-			mv $functions/$file $loaded
+			. $functions_dir/$file
+			mv $functions_dir/$file $loaded
 			print_warn "Function: $file loaded"
 		done
 	fi

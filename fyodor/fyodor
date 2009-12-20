@@ -76,6 +76,11 @@ function load_functions()
 
 load_functions
 
+function send_message()
+{
+	echo $reply | msmtp "$address"
+}
+
 tmp="fyodor${tmpextension}"
 while true
 do

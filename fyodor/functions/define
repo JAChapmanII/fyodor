@@ -16,9 +16,9 @@ function define()
 		else
 			mv "${word}.tmp" "$word"
 		fi
-		cat "$word"
+		reply="$(cat "$word")"
 	else
-		cat "$word"
+		reply="$(cat "$word")"
 	fi
 	popd
 }

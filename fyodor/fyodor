@@ -79,7 +79,7 @@ load_functions
 function send_message()
 {
 	print_message "Sending: $reply to $address"
-	echo $reply | msmtp "$address"
+	echo "$reply" | msmtp "$address"
 }
 
 tmp="fyodor${tmpextension}"

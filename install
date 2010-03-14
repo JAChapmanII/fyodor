@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-. ~/.config/zsh/functions.zsh
+. ~/djef/functions.zsh
 
 if [ "$UID" -ne "0" ]
 then
@@ -8,7 +8,7 @@ then
 	exit 1
 fi
 
-if [ "`pwd`" != "/home/jac/src/multi/fyodor" ]
+if [ "`pwd`" != "/home/djef/src/fyodor" ]
 then
 	print_error "Please make sure you're in the right directory,
 or this could get sticky."
@@ -37,7 +37,7 @@ do
 		print_warn "$dir exists in fyodor, but it is something kept \
 over from old"
 		print_warn "I'm just going to remove it, OK?"
-		rm -r $dir		
+		rm -r $dir
 	fi
 done
 popd

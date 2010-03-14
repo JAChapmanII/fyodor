@@ -10,16 +10,9 @@ function define()
 	then
 		lynx -dump "http://www.google.com/search?q=define: $word" > "$word"
 		cat "$word" | ./def.pl > "${word}.tmp"
-		if [ "`cat \"${word}.tmp\" | grep '*'`" != '' ];
-		then
-			cat "${word}.tmp" | grep '*' > "$word"
-		else
-			mv "${word}.tmp" "$word"
-		fi
-		reply="$(cat "$word")"
-	else
-		reply="$(cat "$word")"
+		mv "${word}.tmp" "$word"
 	fi
+	reply="$(cat "$word")"
 	popd
 }
 

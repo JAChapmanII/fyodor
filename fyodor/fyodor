@@ -31,9 +31,10 @@ done
 function parse_message() 
 {
 	file=$1
-	address="$(cat $parsebox/$file | grep "From:" | 
-	head -n1 | awk '{ print $2 }')"
-	date="$(cat $parsebox/$file | grep "Date:" | head -n1 | 
+	address="$(cat $parsebox/$file | grep "From:" | head -n1 | tr ' ,' '\n' |
+	sed -n 's/[<]*\([^@<>]*@[^\.<>]*\.[^<>]*\)[>]*/\1/p')"
+
+	date="$(cat $parsebox/$file | grep "Date:" | head -n1 |
 	sed -e 's/Date://g' -e 's/^[ \t]*//' -e 's/[ \t]*$//')"
 	print_note "Address is: $address"
 	print_note "Date    is: $date"
@@ -101,17 +102,21 @@ do
 			{ eval '$command "$arguments"' } 2> $tmp
 			if [ ! -z "$reply" ]
 			then
-				send_message $reply
+				send_message "$reply"
 			fi
 			if [[ "$(wc -l $tmp | awk '{print $1}')" -gt "0" ]]
 			then
 				print_error "Command not found"
-				print_error "$(cat $tmp)"
+				print_error "--------- BEGIN ---------"
+				cat $tmp
+				print_error "---------- END ----------"
+				send_message "Please rephrase the query."
 			else
 				print_message "Executed succesfully"
 			fi
 			rm $tmp
 		fi
 		mv $parsebox/$email $processed
+		sleep 1
 	done
 done

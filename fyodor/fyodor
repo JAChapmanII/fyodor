@@ -28,7 +28,7 @@ do
 	esac
 done
 
-function parse_message() 
+function parse_message()
 {
 	file=$1
 	address="$(cat $parsebox/$file | grep "From:" | head -n1 | tr ' ,' '\n' |
@@ -92,7 +92,7 @@ do
 	for email in $(ls $parsebox)
 	do
 		address=
-		date= 
+		date=
 		message=
 		command=
 		arguments=
@@ -113,7 +113,20 @@ do
 				print_error "--------- BEGIN ---------"
 				cat $tmp
 				print_error "---------- END ----------"
-				send_message "Please rephrase the query."
+
+				send="no"
+				for recipient in $address
+				do
+					domain="$(echo $recipient | sed 's/[^@]*@//')"
+					case $domain in
+						vtext.com)
+							reply="Please rephrase the query, Mr. Verizon."
+							send_message
+							;;
+						*)
+							;;
+					esac
+				done
 			else
 				print_message "Executed succesfully"
 			fi

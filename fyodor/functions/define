@@ -48,4 +48,4 @@ function rdef()
 	popd
 	define $*
 }
-	
+

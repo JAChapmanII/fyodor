@@ -114,7 +114,6 @@ do
 				cat $tmp
 				print_error "---------- END ----------"
 
-				send="no"
 				for recipient in $address
 				do
 					domain="$(echo $recipient | sed 's/[^@]*@//')"

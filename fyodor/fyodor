@@ -44,10 +44,10 @@ function parse_message()
 	then
 		print_error "This email is not formatted properly or has no message."
 		print_error "The message could be: $(tail -n1 $parsebox/$file)"
-		return 
+		return
 	fi
 	command="$(echo $message | awk '{ print $1 }' | sed 's/://')"
-	arguments="$(echo $message | 
+	arguments="$(echo $message |
 	sed -e "s/$command//" -e 's/^[ \t]*//' -e 's/[ \t]*$//')"
 
 	print_note "Message is: $message"
@@ -80,7 +80,10 @@ load_functions
 function send_message()
 {
 	print_message "Sending: $reply to $address"
-	echo "$reply" | msmtp "$address"
+	for recipient in $address
+	done
+		echo "$reply" | msmtp "$recipient"
+	done
 }
 
 tmp="fyodor${tmpextension}"
@@ -102,7 +105,7 @@ do
 			{ eval '$command "$arguments"' } 2> $tmp
 			if [ ! -z "$reply" ]
 			then
-				send_message "$reply"
+				send_message
 			fi
 			if [[ "$(wc -l $tmp | awk '{print $1}')" -gt "0" ]]
 			then

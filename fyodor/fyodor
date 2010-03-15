@@ -81,7 +81,7 @@ function send_message()
 {
 	print_message "Sending: $reply to $address"
 	for recipient in $address
-	done
+	do
 		echo "$reply" | msmtp "$recipient"
 	done
 }

@@ -24,4 +24,6 @@ pushd $home
 [ -d $parsebox ]		|| mkdir -p $parsebox
 [ -d $processbox ]		|| mkdir -p $processbox
 [ -d $processed ]		|| mkdir -p $processed
+[ -d $errored ] 		|| mkdir -p $errored
+[ -d $nonexistant ]		|| mkdir -p $nonexistant
 

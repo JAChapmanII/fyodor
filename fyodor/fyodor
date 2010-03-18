@@ -143,6 +143,7 @@ while true
 do
 	for email in $(ls $parsebox)
 	do
+		print_warn "Please do not C-c"
 		address=
 		date=
 		message=
@@ -181,7 +182,12 @@ do
 				send_rephrase
 			else
 				mv $parsebox/$email $processed
-				print_message "Executed succesfully"
+				if [ -z "$reply" ]
+				then
+					print_warn "Executed succesfully, but sent nothing"
+				else
+					print_message "Executed succesfully"
+				fi
 			fi
 		else
 			mv $parsebox/$email $nonexistant
@@ -190,6 +196,7 @@ do
 		fi
 		rm $tmp
 
+		print_note "Safe to C-c right now."
 		sleep 1
 	done
 done

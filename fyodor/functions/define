@@ -1,6 +1,7 @@
 #!/bin/zsh
 
 definition_dir="definitions"
+[ -d "$definition_dir" ] || mkdir -p "$definition_dir"
 
 function define() # &`
 {

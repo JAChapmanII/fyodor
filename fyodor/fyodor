@@ -47,13 +47,16 @@ function parse_message()
 		return
 	fi
 	command="$(echo $message | awk '{ print $1 }' | sed 's/://')"
-	if [ "$(echo $command | sed -n '/-[0-9*/p' )" != '']
+	if [ ! -z "$(echo $command | sed -n '/-[0-9]*/p' )" ]
 	then
 		amount="$command"
 		command="$(echo $message | awk '{ print $2 }' | sed 's/://')"
+		arguments="$(echo $message |
+		sed -e "s/$amount//" -e "s/$command//" -e 's/^[ \t]*//' -e 's/[ \t]*$//')"
+	else
+		arguments="$(echo $message |
+		sed -e "s/$command//" -e 's/^[ \t]*//' -e 's/[ \t]*$//')"
 	fi
-	arguments="$(echo $message |
-	sed -e "s/$amount//" -e "s/$command//" -e 's/^[ \t]*//' -e 's/[ \t]*$//')"
 
 	print_note "Message is: $message"
 	print_note "Command is: $command"
@@ -119,18 +122,23 @@ function send_message()
 		amount="25"
 	fi
 
-	amount="$(echo "${amount}-1" | bc)"
+	amount="$(echo "(${amount}-1) % 25" | bc)"
+	reply="$(echo $reply | tr '\n' ' ')"
 	for part in {0..$amount}
 	do
-		section="$(echo $reply | tr '\n' ' ' |
-		cut -c $(echo "1+160*$amount")-$(echo "161+160*$amount))"
+		start_cut="$(echo "1+160*$part" | bc)"
+		end_cut="$(echo "161+160*$part" | bc)"
+		section="$(echo "$reply" | tr '\n' ' ' | cut -c ${start_cut}-${end_cut})"
 
-		echo $section
-		for recipient in $address
-		do
-			print_message "... to $recipient"
-			echo "$section" | mail "$recipient"
-		done
+		if [ ! -z "$section" ]
+		then
+			echo $section
+			for recipient in $address
+			do
+				print_message "... to $recipient"
+				echo "$section" | mail "$recipient"
+			done
+		fi
 	done
 }
 

@@ -127,8 +127,9 @@ function send_message()
 	for part in {0..$amount}
 	do
 		start_cut="$(echo "1+160*$part" | bc)"
-		end_cut="$(echo "161+160*$part" | bc)"
+		end_cut="$(echo "160+160*$part" | bc)"
 		section="$(echo "$reply" | tr '\n' ' ' | cut -c ${start_cut}-${end_cut})"
+		section="$(echo $section | sed 's/[ \t][ \t]*/ /g')"
 
 		if [ ! -z "$section" ]
 		then
@@ -139,6 +140,7 @@ function send_message()
 				echo "$section" | mail "$recipient"
 			done
 		fi
+		sleep 1
 	done
 }
 

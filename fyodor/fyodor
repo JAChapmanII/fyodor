@@ -74,7 +74,7 @@ function extract_loaded()
 	then
 		exit 1
 	fi
-	for func in $(grep '&`' '$1' | grep -v '#`' | awk '{print $2}' | sed 's/()//')
+	for func in $(grep '&`' "$1" | grep -v '#`' | awk '{print $2}' | sed 's/()//')
 	do
 		loaded_functions+=$func
 	done
@@ -84,7 +84,7 @@ function load_functions() # &`
 {
 	if [ "${loaded_functions[1]}" != "load_functions" ] || [ "$1" = "re" ]
 	then
-		extract_loaded $0
+		extract_loaded ~/fyodor
 	fi
 	if [ "$(ls -A $functions_dir)" != "" ]
 	then
@@ -108,7 +108,7 @@ function send_message()
 	for recipient in $address
 	do
 		print_message "... to $recipient"
-		echo "$reply" | msmtp "$recipient"
+		echo "$reply" | mail "$recipient"
 	done
 }
 
@@ -128,6 +128,16 @@ function send_rephrase() # &`
 	done
 }
 
+function list_functions() # &`
+{
+	reply="${loaded_functions}"
+}
+
+function help() # &`
+{
+	reply="Use 'list_functions' to get a list of functions. Hopefully, they'll be self explanatory, else text djef., else you're screwed right now :p"
+}
+
 tmp="fyodor${tmpextension}"
 while true
 do
@@ -145,9 +155,9 @@ do
 		parse_message $email
 		if [ ! -z "$command" ]
 		then
-			for $proper in $loaded_functions
+			for proper in $loaded_functions
 			do
-				if [ "$command" == "$proper" ]
+				if [ "$command" = "$proper" ]
 				then
 					attempted="yes"
 					{ eval '$command "$arguments"' } 2> $tmp
@@ -159,7 +169,7 @@ do
 			done
 		fi
 
-		if [ "$attempted" == "yes" ]
+		if [ "$attempted" = "yes" ]
 		then
 			if [[ "$(wc -l $tmp | awk '{print $1}')" -gt "0" ]]
 			then

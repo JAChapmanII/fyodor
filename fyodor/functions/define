@@ -2,7 +2,7 @@
 
 definition_dir="definitions"
 
-function define()
+function define() # &`
 {
 	pushd $definition_dir
 	for word in $@
@@ -16,12 +16,12 @@ function define()
 	popd
 }
 
-function def()
+function def() # &`
 {
 	define $*
 }
 
-function redefine()
+function redefine() # &`
 {
 	pushd $definition_dir
 	for arg in $@
@@ -35,7 +35,7 @@ function redefine()
 	define $*
 }
 
-function rdef()
+function rdef() # &`
 {
 	pushd $definition_dir
 	for arg in $@

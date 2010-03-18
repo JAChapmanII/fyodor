@@ -52,36 +52,62 @@ function parse_message()
 
 	print_note "Message is: $message"
 	print_note "Command is: $command"
-	print_note "Argsary is: $arguments"
+	print_note "Argsarray is: $arguments"
 }
 
 loaded="loaded_functions"
-[ -d "$loaded" ] || mkdir -p $loaded
-if [ "$(ls -A $loaded)" != "" ]
-then
-	mv $loaded/* $functions_dir
-fi
-
-function load_functions()
+functions reset_loaded()
 {
+	[ -d "$loaded" ] || mkdir -p $loaded
+	if [ "$(ls -A $loaded)" != "" ]
+	then
+		mv $loaded/* $functions_dir
+	fi
+}
+
+reset_loaded
+
+loaded_functions=()
+function extract_loaded()
+{
+	if [ -z "$1" ]
+	then
+		exit 1
+	fi
+	for func in $(grep '&`' '$1' | grep -v '#`' | awk '{print $2}' | sed 's/()//')
+	do
+		loaded_functions+=$func
+	done
+}
+
+function load_functions() # &`
+{
+	if [ "${loaded_functions[1]}" != "load_functions" ] || [ "$1" = "re" ]
+	then
+		extract_loaded $0
+	fi
 	if [ "$(ls -A $functions_dir)" != "" ]
 	then
 		for file in $(ls -A $functions_dir)
 		do
 			. $functions_dir/$file
+			extract_loaded $functions_dir/$file
 			mv $functions_dir/$file $loaded
 			print_warn "Function: $file loaded"
 		done
 	fi
+	print_warn "Now Loaded: ${loaded_functions}"
 }
 
 load_functions
 
 function send_message()
 {
-	print_message "Sending: $reply to $address"
+	print_message "Sending: "
+	echo $reply
 	for recipient in $address
 	do
+		print_message "... to $recipient"
 		echo "$reply" | msmtp "$recipient"
 	done
 }
@@ -102,36 +128,44 @@ do
 		parse_message $email
 		if [ ! -z "$command" ]
 		then
-			{ eval '$command "$arguments"' } 2> $tmp
-			if [ ! -z "$reply" ]
-			then
-				send_message
-			fi
-			if [[ "$(wc -l $tmp | awk '{print $1}')" -gt "0" ]]
-			then
-				print_error "Command not found"
-				print_error "--------- BEGIN ---------"
-				cat $tmp
-				print_error "---------- END ----------"
+			for $proper in $loaded_functions
+			do
+				if [ "$command" == "$proper" ]
+				then
+					{ eval '$command "$arguments"' } 2> $tmp
+					if [ ! -z "$reply" ]
+					then
+						send_message
+					fi
 
-				for recipient in $address
-				do
-					domain="$(echo $recipient | sed 's/[^@]*@//')"
-					case $domain in
-						vtext.com)
-							reply="Please rephrase the query, Mr. Verizon."
-							send_message
-							;;
-						*)
-							;;
-					esac
-				done
-			else
-				print_message "Executed succesfully"
-			fi
-			rm $tmp
+					if [[ "$(wc -l $tmp | awk '{print $1}')" -gt "0" ]]
+					then
+						mv $parsebox/$email $errored
+						print_error "Function had errors"
+						print_error "--------- BEGIN ---------"
+						cat $tmp
+						print_error "---------- END ----------"
+						for recipient in $address
+						do
+							domain="$(echo $recipient | sed 's/[^@]*@//')"
+							case $domain in
+								vtext.com)
+									reply="Please rephrase the query, Mr. Verizon."
+									send_message
+									;;
+								*)
+									;;
+							esac
+						done
+					else
+						mv $parsebox/$email $processed
+						print_message "Executed succesfully"
+					fi
+				fi
+			done
 		fi
-		mv $parsebox/$email $processed
+		rm $tmp
+
 		sleep 1
 	done
 done

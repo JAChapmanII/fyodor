@@ -112,6 +112,22 @@ function send_message()
 	done
 }
 
+function send_rephrase() # &`
+{
+	for recipient in $address
+	do
+		domain="$(echo $recipient | sed 's/[^@]*@//')"
+		case $domain in
+			vtext.com)
+				reply="Please rephrase the query, Mr. Verizon."
+				send_message
+				;;
+			*)
+				;;
+		esac
+	done
+}
+
 tmp="fyodor${tmpextension}"
 while true
 do
@@ -123,6 +139,7 @@ do
 		command=
 		arguments=
 		reply=
+		attempted="no"
 
 		print_message "Parsing message..."
 		parse_message $email
@@ -132,37 +149,34 @@ do
 			do
 				if [ "$command" == "$proper" ]
 				then
+					attempted="yes"
 					{ eval '$command "$arguments"' } 2> $tmp
 					if [ ! -z "$reply" ]
 					then
 						send_message
 					fi
-
-					if [[ "$(wc -l $tmp | awk '{print $1}')" -gt "0" ]]
-					then
-						mv $parsebox/$email $errored
-						print_error "Function had errors"
-						print_error "--------- BEGIN ---------"
-						cat $tmp
-						print_error "---------- END ----------"
-						for recipient in $address
-						do
-							domain="$(echo $recipient | sed 's/[^@]*@//')"
-							case $domain in
-								vtext.com)
-									reply="Please rephrase the query, Mr. Verizon."
-									send_message
-									;;
-								*)
-									;;
-							esac
-						done
-					else
-						mv $parsebox/$email $processed
-						print_message "Executed succesfully"
-					fi
 				fi
 			done
+		fi
+
+		if [ "$attempted" == "yes" ]
+		then
+			if [[ "$(wc -l $tmp | awk '{print $1}')" -gt "0" ]]
+			then
+				mv $parsebox/$email $errored
+				print_error "Function had errors"
+				print_error "--------- BEGIN ---------"
+				cat $tmp
+				print_error "---------- END ----------"
+				send_rephrase
+			else
+				mv $parsebox/$email $processed
+				print_message "Executed succesfully"
+			fi
+		else
+			mv $parsebox/$email $nonexistant
+			print_error "Function attempting to be executed does not exist"
+			send_rephrase
 		fi
 		rm $tmp
 

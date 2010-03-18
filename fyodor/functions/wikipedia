@@ -1,0 +1,28 @@
+#!/bin/zsh
+
+wikipedia_dir="wikipedia"
+
+function wiki()
+{
+}
+
+function wikipedia()
+{
+}
+
+function rwiki()
+{
+}
+
+function rwikipedia()
+{
+}
+
+function rewiki()
+{
+}
+
+function rewikipedia()
+{
+}
+

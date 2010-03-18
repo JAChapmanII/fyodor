@@ -37,15 +37,6 @@ function redefine() # &`
 
 function rdef() # &`
 {
-	pushd $definition_dir
-	for arg in $@
-	do
-		if [ -f "$arg" ]
-		then
-			rm "$arg"
-		fi
-	done
-	popd
-	define $*
+	redefine $*
 }
 

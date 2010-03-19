@@ -184,6 +184,7 @@ do
 		reply=
 		amount=
 		attempted="no"
+		:> $tmp
 
 		print_message "Parsing message..."
 		parse_message $email
@@ -230,6 +231,6 @@ do
 		rm $tmp
 
 		print_note "Safe to C-c right now."
-		sleep 1
 	done
+	sleep 1
 done

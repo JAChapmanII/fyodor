@@ -1,11 +1,15 @@
 #!/bin/zsh
 
+japanese_dir="japanese"
+[ -d "$japanese_dir" ] || mkdir -p $japanese_dir
+
 function engjap() # &`
 {
 	if [ -z "$1" ]
 	then
 		return
 	fi
+	pushd $japanese_dir
 	# Eng -> Jap
 	wget -q -U Mozilla -O "${1}.tmp" "http://jisho.org/words?jap=&nolimit=1&page=&dict=edict&eng=${1}"
 	# Jap -> Eng
@@ -15,11 +19,31 @@ function engjap() # &`
 	sed -e 's/[ \t][ \t]*/ /g' -e 's/<[^<>]*>//g' > "$1"
 	rm "${1}.tmp"
 
-	japtext="$(head -n2 "$1")"
-	engtext="$(head -n3 "$1" | tail -n1)"
-	convert -background  white -fill black -font Kochi-Gothic-Regular -pointsize 10 label:"${japtext}" "${1}.jpg"
+	print_message "Sending: "
+	if [ -z "$amount" ]
+	then
+		amount="-1"
+	fi
+	amount="$(echo $amount | sed 's/-//')"
+	if [ "$amount" = "0" ]
+	then
+		amount="25"
+	fi
 
-	{echo "From: Fyodor Turing <FyodorTuring@gmail.com>
+	amount="$(echo "(${amount}-1) % 25" | bc)"
+	reply="$(echo $reply | tr '\n' ' ')"
+	for part in {0..$amount}
+	do
+
+	japhead="$(echo "2+$part*3")"
+	enghead="$(echo "3+$part*3")"
+	japtext="$(head -n$japhead "$1")"
+	engtext="$(head -n$enghead "$1" | tail -n1)"
+	if [ ! -z "$engtext" ]
+	then
+		convert -background  white -fill black -font Kochi-Gothic-Regular -pointsize 10 label:"${japtext}" "${1}-${part}.jpg"
+
+		{echo "From: Fyodor Turing <FyodorTuring@gmail.com>
 X-KMail-Transport: Gmail.com
 To: 3309688065@vzwpix.com
 Date: Sat, 20 Mar 2010 14:37:31 -0400
@@ -43,16 +67,25 @@ Content-Transfer-Encoding: base64"
 	echo "
 --Boundary-00=_rXRpLk3tD/HfAWR
 Content-Type: image/jpeg;
-  name="${1}.jpg"
+  name="${1}-${part}.jpg"
 Content-Transfer-Encoding: base64
 Content-Disposition: attachment;
-	filename="${1}.jpg"
+	filename="${1}-${part}.jpg"
 
 "
-	cat "${1}.jpg" | base64
+	cat "${1}-${part}.jpg" | base64
 	echo "
---Boundary-00=_rXRpLk3tD/HfAWR--"} > "${1}.message"
-	msmtp "${1}.message"
-	rm "${1}.message"
+--Boundary-00=_rXRpLk3tD/HfAWR--"} > "${1}-${part}.message"
+
+			echo $engtext
+			for recipient in $address
+			do
+				print_message "... to $recipient"
+				cat "${1}-${part}.message" | msmptp
+			done
+		fi
+		sleep 1
+	done
+	popd
 }
 

@@ -1,0 +1,58 @@
+#!/bin/zsh
+
+function engjap() # &`
+{
+	if [ -z "$1" ]
+	then
+		return
+	fi
+	# Eng -> Jap
+	wget -q -U Mozilla -O "${1}.tmp" "http://jisho.org/words?jap=&nolimit=1&page=&dict=edict&eng=${1}"
+	# Jap -> Eng
+	# wget -q -U Mozilla -O "${1}.tmp" "http://jisho.org/words?jap=${1}&eng=&dict=edict"
+	cat "${1}.tmp" | sed '1,/<div id="result">/d' |
+	egrep '(class="kanji"|kana_column|meanings_column)' |
+	sed -e 's/[ \t][ \t]*/ /g' -e 's/<[^<>]*>//g' > "$1"
+	rm "${1}.tmp"
+
+	japtext="$(head -n2 "$1")"
+	engtext="$(head -n3 "$1" | tail -n1)"
+	convert -background  white -fill black -font Kochi-Gothic-Regular -pointsize 10 label:"${japtext}" "${1}.jpg"
+
+	{echo "From: Fyodor Turing <FyodorTuring@gmail.com>
+X-KMail-Transport: Gmail.com
+To: 3309688065@vzwpix.com
+Date: Sat, 20 Mar 2010 14:37:31 -0400
+User-Agent: KMail/1.13.1 (Linux/2.6.32-ck; KDE/4.4.1; x86_64; ; )
+X-KMail-QuotePrefix: >
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_rXRpLk3tD/HfAWR"
+Message-Id: <201003201437.31315.JAChapmanII@gmail.com>
+Status: RO
+X-Status: RST
+X-KMail-EncryptionState:
+X-KMail-SignatureState:
+X-KMail-MDN-Sent:
+
+--Boundary-00=_rXRpLk3tD/HfAWR
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: base64"
+	echo "$engtext" | base64
+	echo "
+--Boundary-00=_rXRpLk3tD/HfAWR
+Content-Type: image/jpeg;
+  name="${1}.jpg"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="${1}.jpg"
+
+"
+	cat "${1}.jpg" | base64
+	echo "
+--Boundary-00=_rXRpLk3tD/HfAWR--"} > "${1}.message"
+	msmtp "${1}.message"
+	rm "${1}.message"
+}
+

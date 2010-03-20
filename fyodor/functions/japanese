@@ -42,38 +42,13 @@ function engjap() # &`
 	then
 		convert -background  white -fill black -font Kochi-Gothic-Regular -pointsize 10 label:"${japtext}" "${1}-${part}.jpg"
 
-echo "From: Fyodor Turing <FyodorTuring@gmail.com>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_rXRpLk3tD/HfAWR"
-Status: RO
-X-Status: RST
-
---Boundary-00=_rXRpLk3tD/HfAWR
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: base64
-" > jap.head
-
-echo "
---Boundary-00=_rXRpLk3tD/HfAWR
-Content-Type: image/jpeg;
-  name="${1}-${part}.jpg"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="${1}-${part}.jpg"
-" > jap.mid
-
-echo "
---Boundary-00=_rXRpLk3tD/HfAWR--" > jap.tail
-
-	(cat jap.head; echo "$engtext" | base64; cat jap.mid; cat "${1}-${part}.jpg" | base64; cat jap.tail)
+	(cat engjap.head; echo "$engtext" | base64; cat engjap.middle; cat "${1}-${part}.jpg" | base64; cat engjap.tail)
 
 		for recipient in $address
 		do
 			number="$(echo "$recipient" | sed 's/@.*//')"
-			print_message "... to $recipient"
-			(cat jap.head; echo "$engtext" | base64; cat jap.mid; cat "${1}-${part}.jpg" | base64; cat jap.tail) | msmtp "${number}@vzwpix.com"
+			print_message "... to $number"
+	(cat engjap.head; echo "$engtext" | base64; cat engjap.middle; cat "${1}-${part}.jpg" | base64; cat engjap.tail) | msmtp "${number}@vzwpix.com"
 		done
 	fi
 	sleep 1

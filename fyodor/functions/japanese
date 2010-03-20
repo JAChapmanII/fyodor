@@ -31,60 +31,52 @@ function engjap() # &`
 	fi
 
 	amount="$(echo "(${amount}-1) % 25" | bc)"
-	reply="$(echo $reply | tr '\n' ' ')"
 	for part in {0..$amount}
 	do
 
-	japhead="$(echo "2+$part*3")"
-	enghead="$(echo "3+$part*3")"
+	japhead="$(echo "2+$part*3" | bc)"
+	enghead="$(echo "3+$part*3" | bc)"
 	japtext="$(head -n$japhead "$1")"
 	engtext="$(head -n$enghead "$1" | tail -n1)"
 	if [ ! -z "$engtext" ]
 	then
 		convert -background  white -fill black -font Kochi-Gothic-Regular -pointsize 10 label:"${japtext}" "${1}-${part}.jpg"
 
-		{echo "From: Fyodor Turing <FyodorTuring@gmail.com>
-X-KMail-Transport: Gmail.com
-To: 3309688065@vzwpix.com
-Date: Sat, 20 Mar 2010 14:37:31 -0400
-User-Agent: KMail/1.13.1 (Linux/2.6.32-ck; KDE/4.4.1; x86_64; ; )
-X-KMail-QuotePrefix: >
+echo "From: Fyodor Turing <FyodorTuring@gmail.com>
 MIME-Version: 1.0
 Content-Type: Multipart/Mixed;
   boundary="Boundary-00=_rXRpLk3tD/HfAWR"
-Message-Id: <201003201437.31315.JAChapmanII@gmail.com>
 Status: RO
 X-Status: RST
-X-KMail-EncryptionState:
-X-KMail-SignatureState:
-X-KMail-MDN-Sent:
 
 --Boundary-00=_rXRpLk3tD/HfAWR
 Content-Type: Text/Plain;
   charset="utf-8"
-Content-Transfer-Encoding: base64"
-	echo "$engtext" | base64
-	echo "
+Content-Transfer-Encoding: base64
+" > jap.head
+
+echo "
 --Boundary-00=_rXRpLk3tD/HfAWR
 Content-Type: image/jpeg;
   name="${1}-${part}.jpg"
 Content-Transfer-Encoding: base64
 Content-Disposition: attachment;
 	filename="${1}-${part}.jpg"
+" > jap.mid
 
-"
-	cat "${1}-${part}.jpg" | base64
-	echo "
---Boundary-00=_rXRpLk3tD/HfAWR--"} > "${1}-${part}.message"
+echo "
+--Boundary-00=_rXRpLk3tD/HfAWR--" > jap.tail
 
-			echo $engtext
-			for recipient in $address
-			do
-				print_message "... to $recipient"
-				cat "${1}-${part}.message" | msmptp
-			done
-		fi
-		sleep 1
+	(cat jap.head; echo "$engtext" | base64; cat jap.mid; cat "${1}-${part}.jpg" | base64; cat jap.tail)
+
+		for recipient in $address
+		do
+			number="$(echo "$recipient" | sed 's/@.*//')"
+			print_message "... to $recipient"
+			(cat jap.head; echo "$engtext" | base64; cat jap.mid; cat "${1}-${part}.jpg" | base64; cat jap.tail) | msmtp "${number}@vzwpix.com"
+		done
+	fi
+	sleep 1
 	done
 	popd
 }

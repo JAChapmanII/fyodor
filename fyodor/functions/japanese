@@ -31,28 +31,31 @@ function engjap() # &`
 	fi
 
 	amount="$(echo "(${amount}-1) % 25" | bc)"
+	echo "$amount"
+	echo "$address"
 	for part in {0..$amount}
 	do
 
-	japhead="$(echo "2+$part*3" | bc)"
-	enghead="$(echo "3+$part*3" | bc)"
-	japtext="$(head -n$japhead "$1")"
-	engtext="$(head -n$enghead "$1" | tail -n1)"
-	if [ ! -z "$engtext" ]
-	then
-		convert -background  white -fill black -font Kochi-Gothic-Regular -pointsize 10 label:"${japtext}" "${1}-${part}.jpg"
+		japhead="$(echo "2+$part*3" | bc)"
+		enghead="$(echo "3+$part*3" | bc)"
+		japtext="$(head -n$japhead "$1" | tail -n3 | head -n2)"
+		engtext="$(head -n$enghead "$1" | tail -n1)"
+		if [ ! -z "$engtext" ]
+		then
+			convert -background  white -fill black -font Kochi-Gothic-Regular -pointsize 18 label:"${japtext}" "${1}-${part}.jpg"
 
-	(cat engjap.head; echo "$engtext" | base64; cat engjap.middle; cat "${1}-${part}.jpg" | base64; cat engjap.tail)
+			(cat engjap.head; echo "$engtext" | base64; cat engjap.middle; cat "${1}-${part}.jpg" | base64; cat engjap.tail)
 
-		for recipient in $address
-		do
-			number="$(echo "$recipient" | sed 's/@.*//')"
-			print_message "... to $number"
-	(cat engjap.head; echo "$engtext" | base64; cat engjap.middle; cat "${1}-${part}.jpg" | base64; cat engjap.tail) | msmtp "${number}@vzwpix.com"
-		done
-	fi
-	sleep 1
+			for recipient in $address
+			do
+				number="$(echo "$recipient" | sed 's/@.*//')"
+				print_message "... to $number"
+				(cat engjap.head; echo "$engtext" | base64; cat engjap.middle; cat "${1}-${part}.jpg" | base64; cat engjap.tailudo | msmtp "${number}@vzwpix.com"
+			done
+		fi
+		sleep 1
 	done
+
 	popd
 }
 

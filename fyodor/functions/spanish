@@ -1,0 +1,20 @@
+#!/bin/zsh
+
+spanish_dir="spanish"
+[ -d $spanish_dir ] || mkdir -p $spanish_dir
+
+function engspa() # &`
+{
+	pushd $spanish_dir
+	wget -q -U Mozilla -O "$1" "http://www.wordreference.com/es/translation.asp?tranword=$1"
+	reply"=$(cat "$1" | lynx --stdin --dump | sed "1,/$1/d" | sed "1,/$1/d" | grep -v '\]')"
+	popd
+}
+
+function spaeng() # &`
+{
+	pushd $spanish_dir
+	wget -q -U Mozilla -O "$1" "http://www.wordreference.com/es/en/translation.asp?spen=$1"
+	reply"=$(cat "$1" | lynx --stdin --dump | sed "1,/$1/d" | sed "1,/$1/d" | grep -v '\]')"
+	popd
+}

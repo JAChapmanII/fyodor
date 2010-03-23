@@ -35,7 +35,6 @@ function engjap() # &`
 	echo "$address"
 	for part in {0..$amount}
 	do
-
 		headnum="$(echo "3 + ( ${part} * 3 )" | bc)"
 		japtext="$(head -n$headnum "$1" | tail -n3 | head -n2)"
 		engtext="$(head -n$headnum "$1" | tail -n1)"

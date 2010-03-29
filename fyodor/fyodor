@@ -286,7 +286,7 @@ function list_functions() # &`
 
 function help() # &`
 {
-	reply="Use 'list_functions' to get a list of functions. Hopefully, they'll be self explanatory, else text djef., else you're screwed right now :p"
+	SMS "$address" "Use 'list_functions' to get a list of functions. Hopefully, they'll be self explanatory, else text djef., else you're screwed right now :p"
 }
 
 tmp="fyodor${tmpextension}"

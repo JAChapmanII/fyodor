@@ -114,6 +114,11 @@ rest="$(echo $1 | cut -f2-99 -d' ')"
 	echo "{" >> exec_message
 	echo "	first=\"\$(echo \$1 | cut -f1 -d' ')\"" >> exec_message
 	echo "	rest=\"\$(echo \$1 | cut -f2-99 -d' ')\"" >> exec_message
+
+	echo "	echo \$1" >> exec_message
+	echo "	echo \$first" >> exec_message
+	echo "	echo \$rest" >> exec_message
+
 	echo "	case \$first in" >> exec_message
 	for function in $loaded_functions
 	do

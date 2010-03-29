@@ -104,27 +104,55 @@ function load_functions() # &`
 			print_warn "Function: $file loaded"
 		done
 	fi
+
+	comm="$(echo $1 | cut -f1 -d' ')"
+rest="$(echo $1 | cut -f2-99 -d' ')"
+
+	:> exec_message
+	echo "#!/bin/zsh" >> exec_message
+	echo "function exec_message()" >> exec_message
+	echo "{" >> exec_message
+	echo "	first=\"\$(echo \$1 | cut -f1 -d' ')\"" >> exec_message
+	echo "	rest=\"\$(echo \$1 | cut -f2-99 -d' ')\"" >> exec_message
+	echo "	case \$first in" >> exec_message
+	for function in $loaded_functions
+	do
+		echo "		$function)" >> exec_message
+		echo "			$function \$rest" >> exec_message
+		echo "			;;" >> exec_message
+	done
+	echo "		*)" >> exec_message
+	echo "			attempted=\"no\"" >> exec_message
+	echo "			;;" >> exec_message
+	echo "	esac" >> exec_message
+	echo "}" >> exec_message
+	cat exec_message
+	. ./exec_message
 	print_warn "Now Loaded: ${loaded_functions}"
 }
 
 load_functions
 
-function send_message()
+# recipients message number
+function SMS() #{{{
 {
-	print_message "Sending: "
-	if [ -z "$amount" ]
+	if [ -z "$1" ] || [ -z "$2" ]
 	then
-		amount="-1"
+		return 1
 	fi
-	amount="$(echo $amount | sed 's/-//')"
-	if [ "$amount" = "0" ]
+	recipients="$1"
+	message="$2"
+
+	if [ -z "$3" ]
 	then
-		amount="25"
+		amount="0"
+	else
+		amount="$3"
 	fi
 
-	amount="$(echo "(${amount}-1) % 25" | bc)"
-	reply="$(echo $reply | tr '\n' ' ')"
-	for part in {0..$amount}
+	echo "Sending $amount message(s) to $recipients: "
+
+	for i in {0..$amount}
 	do
 		start_cut="$(echo "1+157*$part" | bc)"
 		end_cut="$(echo "157+157*$part" | bc)"
@@ -134,17 +162,108 @@ function send_message()
 		if [ ! -z "$section" ]
 		then
 			echo $section
-			for recipient in $address
+			for recipient in $recipients
 			do
-				print_message "... to $recipient"
 				echo "$part $section" | mail "$recipient"
 			done
 		fi
 		sleep 1
 	done
-}
+} #}}}
 
-function send_rephrase() # &`
+# recipients message number
+function MMS() #{{{
+{
+	if [ -z "$1" ] || [ -z "$2" ]
+	then
+		return 1
+	fi
+	recipients="$1"
+	message="$2"
+
+	if [ -z "$3" ]
+	then
+		amount="0"
+	else
+		amount="$3"
+	fi
+
+	files="$(ls ${attachments})"
+
+	echo "Sending $amount message(s) to $recipients with files $files: "
+
+	for i in {0..$amount}
+	do
+		start_cut="$(echo "1+997*$i" | bc)"
+		end_cut="$(echo "997+997*$i" | bc)"
+		section="$(echo "$message" | tr '\n' ' ' | cut -c ${start_cut}-${end_cut})"
+		section="$(echo $section | sed 's/[ \t][ \t]*/ /g')"
+
+		mail=""
+		mail="MIME-Version:1.0
+Content-Type: multipart/mixed;
+  boundary=\"__CONTENT_64564_PART_BOUNDARY__33243242__\"
+
+--__CONTENT_64564_PART_BOUNDARY__33243242__
+Content-Type: text/plain;
+ charset=utf-8;
+ name=\"text_01_000.txt\"
+Content-Location: text_01_000.txt
+
+$section
+
+"
+
+		if [ ! -z "$files" ]
+		then
+			for file in $files
+			do
+				if [ "$(file $attachments/$file | grep 'JPEG image data')" != '' ]
+				then
+					mail+="--__CONTENT_64564_PART_BOUNDARY__33243242__
+Content-Type: image/jpeg;
+  name=\"$file\"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename=\"$file\"
+
+"
+					mail+="$(base64 $attachments/$file)
+"
+				fi
+				if [ "$(file $attachments/$file | grep 'PNG image data')" != '' ]
+				then
+					mail+="--__CONTENT_64564_PART_BOUNDARY__33243242__
+Content-Type: image/png;
+  name=\"$file\"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename=\"$file\"
+
+"
+					mail+="$(base64 $attachments/$file)
+"
+				fi
+			done
+		fi
+
+		mail+="
+--__CONTENT_64564_PART_BOUNDARY__33243242__--
+"
+
+		if [ ! -z "$section" ]
+		then
+			echo $section
+			for recipient in $recipients
+			do
+				echo "$mail" | msmtp "$recipient"
+			done
+		fi
+		sleep 1
+	done
+} #}}}
+
+function send_rephrase() # &` {{{
 {
 	for recipient in $address
 	do
@@ -158,7 +277,7 @@ function send_rephrase() # &`
 				;;
 		esac
 	done
-}
+} #}}}
 
 function list_functions() # &`
 {
@@ -183,25 +302,14 @@ do
 		arguments=
 		reply=
 		amount=
-		attempted="no"
+		attempted="yes"
 		:> $tmp
 
 		print_message "Parsing message..."
 		parse_message $email
 		if [ ! -z "$command" ]
 		then
-			for proper in $loaded_functions
-			do
-				if [ "$command" = "$proper" ]
-				then
-					attempted="yes"
-					{ eval '$command "$arguments"' } 2> $tmp
-					if [ ! -z "$reply" ]
-					then
-						send_message
-					fi
-				fi
-			done
+			exec_message "$message"
 		fi
 
 		if [ "$attempted" = "yes" ]

@@ -10,6 +10,7 @@ processbox="process"
 processed="processed"
 errored="errored"
 nonexistant="nonexistant"
+attachments="attachments"
 functions_dir="functions"
 logextension=".log"
 tmpextension=".tmp"
@@ -26,4 +27,5 @@ pushd $home
 [ -d $processed ]		|| mkdir -p $processed
 [ -d $errored ] 		|| mkdir -p $errored
 [ -d $nonexistant ]		|| mkdir -p $nonexistant
+[ -d $attachments ]		|| mkdir -p $attachments
 

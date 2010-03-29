@@ -1,16 +1,16 @@
 #!/bin/zsh
 
 phoneDir="phoneDir"
-[ -d "$phoneDir"] || mkdir -p $phoneDir
+[ -d "$phoneDir" ] || mkdir -p $phoneDir
 
 function pnm() # &`
 {
-	if [ -z "$1"]
+	if [ -z "$1" ]
 	then
 		return 1
 	fi
 	pushd $phoneDir
-	wget -O "${1}" -U mozilla "http://www.google.com/search?hl=en&source=hp&q=${1}&btnG=Google+Search"
-	reply="$(cat ${1} | lynx --stdin --dump | sed -n  '/- (/ s/- \[.*//p' | sed 's/[^\.]*\.\([^\.]*\)\.[^ ]*/\1/')"
+	wget -q -O "${1}" -U mozilla "http://www.google.com/search?hl=en&source=hp&q=${1}&btnG=Google+Search"
+	reply="$(cat "${1}" | lynx --stdin --dump | sed -n  '/([0-9][0-9][0-9]) [0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]/ s/- \[.*//p' | sed 's/[^\.]*\.\([^\.]*\)\.[^ ]*/\1/')"
 	popd
 }

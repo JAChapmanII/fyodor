@@ -1,28 +1,39 @@
 #!/bin/zsh
+#&` define -> define
+#&` def -> define
+#&` redefine -> redefine
+#&` rdef -> redefine
 
 definition_dir="definitions"
 [ -d "$definition_dir" ] || mkdir -p "$definition_dir"
 
-function define() # &`
+# define -- defines a word/words using google
+function define() #{{{
 {
 	pushd $definition_dir
+	SEARCH="http://www.google.com/search?q=define: "
 	for word in $@
-	if [ ! -f "$word" ];
-	then
-		lynx -dump "http://www.google.com/search?q=define: $word" > "$word"
-		cat "$word" | ./def.pl > "${word}.tmp"
-		mv "${word}.tmp" "$word"
-	fi
-	reply="$(cat "$word")"
+	do
+		if [ ! -f "$word" ];
+		then
+			lynx -dump "${SEARCH} $word" | tee "${word}.tmp" > "$word"
+			sed -i -e '1,/Definitions/d' -e '/^$/,$d' -e '/\[/d' "$word"
+			if [ "$(cat \"$word\")" = "" ]
+			then
+				sed -n '/Did you mean:/ s/\[[^:]*: //p' "${word}.tmp" > "$word"
+				if [ "$(cat \"$word\")" = "" ]
+				then
+					echo "No definitions found for ${word}. If you think this is a mistake, try 'redefine $word'" > "$word"
+				fi
+			fi
+			rm "${word}.tmp"
+		fi
+		SMS "$address" "$(cat \"$word\")"
+	done
 	popd
-}
+} #}}}
 
-function def() # &`
-{
-	define $*
-}
-
-function redefine() # &`
+function redefine() #{{{
 {
 	pushd $definition_dir
 	for arg in $@
@@ -34,10 +45,5 @@ function redefine() # &`
 	done
 	popd
 	define $*
-}
-
-function rdef() # &`
-{
-	redefine $*
-}
+} #}}}
 

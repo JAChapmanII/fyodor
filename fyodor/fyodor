@@ -1,19 +1,37 @@
 #!/bin/zsh
+#&` list->list_functions
+#&` list_functions->list_functions
+#&` help->help
+#&` load->load
+#&` map->map
 
 . $XDG_CONFIG_HOME/zsh/functions.zsh
 . ~/global
 
+VERBOSE="false"
+FUNCTION_FROM=()
+FUNCTION_TO=()
+VALID=""
+ADDRESS=""
+COMMAND=""
+ARGUMENTS=""
+RETURN_TYPE=""
+AMOUNT=""
+
+loaded_dir="loaded_functions"
+function_dir="functions"
+[ -d "$loaded_dir" ] || mkdir -p $loaded_dir
+[ -d "$functions_dir" ] || mkdir -p $functions_dir
+
 # process args
-# do these do anything?
-verbose=false #{{{
-for arg in $@
+for arg in $@ #{{{
 do
 	case "$arg" in
 		-v|--verbose)
-			verbose=true
+			VERBOSE="true"
 			;;
 		-q|--quiet)
-			verbose=false
+			VERBOSE="false"
 			;;
 		-r|--reprocess)
 			if [ "$(ls -A $processed)" != "" ]
@@ -30,150 +48,90 @@ do
 	esac
 done #}}}
 
-# parse_message
+# parse_message [COMMAND,ARGUMENTS,ADDRESS] {RETURN_TYPE,AMOUNT}
 function parse_message() #{{{
 {
-	file=$1
-	address="$(cat $parsebox/$file | grep "From:" | head -n1 | tr ' ,' '\n' |
-	sed -n 's/[<]*\([^@<>]*@[^\.<>]*\.[^<>]*\)[>]*/\1/p')"
+	AMOUNT="1"
+	message="$(cat $parsebox/$1)"
+	ADDRESS="$(echo $message | tr ' ,<>' '\n' | grep '@' | head -n1)"
+	print_note "Address is: ${ADDRESS}"
 
-	date="$(cat $parsebox/$file | grep "Date:" | head -n1 |
-	sed -e 's/Date://g' -e 's/^[ \t]*//' -e 's/[ \t]*$//')"
-	print_note "Address is: $address"
-	print_note "Date    is: $date"
+	BOUNDARY=""
+	BLINE="$(echo $message | grep -A1 "Content-Type:" | grep 'boundary="')"
+	if [ ! -z "$BLINE" ]
+	then
+		eval "$(echo $BLINE | sed 's/boundary/BOUNDARY/')"
+		message="$(echo $message | sed '1,/^$/d')"
+	fi
+	message="$(echo $message | sed '1,/^$/ d')"
+	if [ ! -z "$BLINE" ]
+	then
+		message="$(echo $message | sed "/${BOUNDARY}/,$ d/")"
+	fi
+	message="$(echo $message |
+	sed -e 's/^[ \t]*\(.*\)[ \t]*$/\1/' -e 's/[ \t]\+/ /g')"
 
-	message="$(cat new/$file | sed '1,/^$/ d')"
 	if [ -z "$message" ]
 	then
 		print_error "This email is not formatted properly or has no message."
-		print_error "The message could be: $(tail -n1 $parsebox/$file)"
 		return
 	fi
-	command="$(echo $message | awk '{ print $1 }' | sed 's/://')"
-	if [ ! -z "$(echo $command | sed -n '/-[0-9]*/p' )" ]
-	then
-		amount="$command"
-		command="$(echo $message | awk '{ print $2 }' | sed 's/://')"
-		arguments="$(echo $message |
-		sed -e "s/$amount//" -e "s/$command//" -e 's/^[ \t]*//' -e 's/[ \t]*$//')"
-	else
-		arguments="$(echo $message |
-		sed -e "s/$command//" -e 's/^[ \t]*//' -e 's/[ \t]*$//')"
-	fi
+	print_note "Message is: "
+	echo $message
 
-	message="$(echo $message | sed 's/[ ]*\([^ ]*\)[ ]*/\1/')"
-
-	print_note "Message is: $message"
-	print_note "Command is: $command"
-	print_note "Argsarray is: $arguments"
-} #}}}
-
-loaded="loaded_functions"
-# reset_loaded
-functions reset_loaded() #{{{
-{
-	[ -d "$loaded" ] || mkdir -p $loaded
-	if [ "$(ls -A $loaded)" != "" ]
-	then
-		mv $loaded/* $functions_dir
-	fi
-} #}}}
-
-reset_loaded
-
-loaded_functions=()
-# extract_loaded
-function extract_loaded() #{{{
-{
-	if [ -z "$1" ]
-	then
-		exit 1
-	fi
-	for func in $(grep '&`' "$1" | grep -v '#`' | awk '{print $2}' | sed 's/()//')
+	message="$(echo $message | head -n1)"
+	first="$(echo $message | cut -c1)"
+	while [ "$first" = "-" ]
 	do
-		loaded_functions+=$func
+		arg="$(echo $message | cut -f1 -d' ')"
+		case "$arg" in
+			-S|--SMS)
+				RETURN_TYPE="SMS"
+				print_note "Set return type to SMS"
+				;;
+			-M|--MMS)
+				RETURN_TYPE="MMS"
+				print_note "Set return type to MMS"
+				;;
+			*)
+				AMOUNT="$(echo $arg | sed 's/-*//g')"
+				print_note "Set amount to $AMOUNT"
+				;;
+		esac
+		message="$(echo $message | cut -f2-999 -d' ')"
+		first="$(echo $message | cut -c1)"
 	done
+
+	COMMAND="$(echo $message | cut -f1 -d' ')"
+	ARGUMENTS="$(echo $message | cut -f2-999 -d' ')"
+
+	print_note "Command is: $COMMAND"
+	print_note "Arguments are: $ARGUMENTS"
 } #}}}
-
-# load_functions [X]
-function load_functions() # &` {{{
-{
-	if [ "${loaded_functions[1]}" != "load_functions" ] || [ "$1" = "re" ]
-	then
-		extract_loaded ~/fyodor
-	fi
-	if [ "$(ls -A $functions_dir)" != "" ]
-	then
-		for file in $(ls -A $functions_dir)
-		do
-			. $functions_dir/$file
-			extract_loaded $functions_dir/$file
-			mv $functions_dir/$file $loaded
-			print_warn "Function: $file loaded"
-		done
-	fi
-
-	comm="$(echo $1 | cut -f1 -d' ')"
-rest="$(echo $1 | cut -f2-99 -d' ')"
-
-	:> exec_message
-	echo "#!/bin/zsh" >> exec_message
-	echo "function exec_message()" >> exec_message
-	echo "{" >> exec_message
-	echo "	first=\"\$(echo \$1 | cut -f1 -d' ')\"" >> exec_message
-	echo "	rest=\"\$(echo \$1 | cut -f2-99 -d' ')\"" >> exec_message
-	echo "	case \$first in" >> exec_message
-	for function in $loaded_functions
-	do
-		echo "		$function)" >> exec_message
-		echo "			$function \$rest" >> exec_message
-		echo "			;;" >> exec_message
-	done
-	echo "		*)" >> exec_message
-	echo "			attempted=\"no\"" >> exec_message
-	echo "			;;" >> exec_message
-	echo "	esac" >> exec_message
-	echo "}" >> exec_message
-	cat exec_message
-	. ./exec_message
-	print_warn "Now Loaded: ${loaded_functions}"
-} #}}}
-
-load_functions
 
 # SMS recipients message number
 function SMS() #{{{
 {
-	if [ -z "$1" ] || [ -z "$2" ]
+	if [ -z "$1" ]
 	then
 		return 1
 	fi
-	recipients="$1"
-	message="$2"
 
-	if [ -z "$3" ]
-	then
-		amount="0"
-	else
-		amount="$3"
-	fi
+	print_message "Sending $AMOUNT message(s) to $ADDRESS: "
 
-	print_message "Sending $amount message(s) to $recipients: "
-
-	for i in {0..$amount}
+	total="$(echo "$AMOUNT -1" | bc)"
+	for i in {0..$total}
 	do
 		start_cut="$(echo "1+157*$i" | bc)"
 		end_cut="$(echo "157+157*$i" | bc)"
-		section="$(echo "$message" | tr '\n' ' ' | cut -c ${start_cut}-${end_cut})"
-		section="$(echo $section | sed 's/[ \t][ \t]*/ /g')"
+		section="$(echo "$1" | tr '\n' ' ' | cut -c ${start_cut}-${end_cut})"
+		section="$(echo $section | sed 's/[ \t]\+/ /g')"
 
 		if [ ! -z "$section" ]
 		then
-			echo $section
-			for recipient in $recipients
-			do
-				echo "$part $section" | mail "$recipient"
-			done
+			print_note "Part $part:"
+			echo "$section"
+			echo "$part $section" | mail "$ADDRESS"
 		fi
 		sleep 1
 	done
@@ -182,31 +140,40 @@ function SMS() #{{{
 # MMS recipients message number
 function MMS() #{{{
 {
-	if [ -z "$1" ] || [ -z "$2" ]
+	if [ -z "$1" ]
 	then
 		return 1
 	fi
-	recipients="$1"
-	message="$2"
-
-	if [ -z "$3" ]
-	then
-		amount="0"
-	else
-		amount="$3"
-	fi
-
 	files="$(ls ${attachments})"
 
-	print_message "Sending $amount message(s) to $recipients with files $files: "
+	# Try to determine where we're sending this sucker {{{
+	number="$(echo $ADDRESS | sed 's/\(.*\)@.*/\1/')"
+	domain="$(echo $ADDRESS | sed 's/.*@\(.*\)/\1/')"
+	case $domain in
+		vtext.com)
+			domain="vzwpix.com"
+			;;
+		*)
+			domain=""
+			;;
+	esac #}}}
+	if [ -z "$domain" ]
+	then
+		print_error "Couldn't determine what the domain maps to."
+		return 1
+	fi
 
-	for i in {0..$amount}
+	print_message "Sending $AMOUNT message(s) to $ADDRESS with $files: "
+
+	total="$(echo "$AMOUNT -1" | bc)"
+	for i in {0..$total}
 	do
 		start_cut="$(echo "1+997*$i" | bc)"
 		end_cut="$(echo "997+997*$i" | bc)"
-		section="$(echo "$message" | tr '\n' ' ' | cut -c ${start_cut}-${end_cut})"
-		section="$(echo $section | sed 's/[ \t][ \t]*/ /g')"
+		section="$(echo "$1" | tr '\n' ' ' | cut -c ${start_cut}-${end_cut})"
+		section="$(echo $section | sed 's/[ \t]\+/ /g')"
 
+		# Header with $section {{{
 		mail=""
 		mail="MIME-Version:1.0
 Content-Type: multipart/mixed;
@@ -220,14 +187,17 @@ Content-Location: text_01_000.txt
 
 $section
 
-"
+" #}}}
 
+		# Attach files if there are any. Attaches all files it can to all
+		# with absolutely no checks what-so-ever. Fix at some point {{{
 		if [ ! -z "$files" ]
 		then
 			for file in $files
 			do
 				if [ "$(file $attachments/$file | grep 'JPEG image data')" != '' ]
 				then
+					# Middle with $file if JPEG {{{
 					mail+="--__CONTENT_64564_PART_BOUNDARY__33243242__
 Content-Type: image/jpeg;
   name=\"$file\"
@@ -237,10 +207,11 @@ Content-Disposition: attachment;
 
 "
 					mail+="$(base64 $attachments/$file)
-"
+" #}}}
 				fi
 				if [ "$(file $attachments/$file | grep 'PNG image data')" != '' ]
 				then
+					# Middle with $file if PNG {{{
 					mail+="--__CONTENT_64564_PART_BOUNDARY__33243242__
 Content-Type: image/png;
   name=\"$file\"
@@ -250,79 +221,145 @@ Content-Disposition: attachment;
 
 "
 					mail+="$(base64 $attachments/$file)
-"
+" #}}}
 				fi
 			done
-		fi
+		fi #}}}
 
+		# Footer that ends everything {{{
 		mail+="
 --__CONTENT_64564_PART_BOUNDARY__33243242__--
-"
+" #}}}
 
-		if [ ! -z "$section" ]
+		# If there are files or some message, send the damn thing
+		if [ ! -z "$section" ] || [ ! -z "$files" ]
 		then
-			echo $section
-			for recipient in $recipients
-			do
-				echo "$mail" | msmtp "$recipient"
-			done
+			print_note "Part $part:"
+			echo "$section"
+			echo "$mail" | msmtp "${number}@${domain}"
 		fi
 		sleep 1
 	done
-} #}}}
 
-# send_rephrase [X]
-function send_rephrase() # &` {{{
-{
-	for recipient in $address
+	for file in $files
 	do
-		domain="$(echo $recipient | sed 's/[^@]*@//')"
-		case $domain in
-			vtext.com)
-				SMS "$recipient" "Please rephrase the query, Mr. Verizon."
-				;;
-			*)
-				;;
-		esac
+		rm ${attachments}/$file
 	done
 } #}}}
 
-# list_functions [X]
-function list_functions() # &` {{{
+# reply {{{
+function reply()
 {
-	SMS "$address" "${loaded_functions}"
+	if [ -z "$1" ]
+	then
+		return
+	fi
+	if [ "$RETURN_TYPE" = "MMS" ]
+	then
+		MMS "$1"
+	else
+		SMS "$1"
+	fi
 } #}}}
 
-# help [X]
-function help() # &` {{{
+# list_functions
+function list_functions() # {{{
 {
-	SMS "$address" "Use 'list_functions' to get a list of functions. Hopefully, they'll be self explanatory, else text djef., else you're screwed right now :p"
+	reply "${FUNCTION_FROM[*]}"
 } #}}}
+
+# help
+function help() #{{{
+{
+	reply "Use 'list' to get a list of functions. Hopefully, they'll be self explanatory, else text djef., else you're screwed right now :p"
+} #}}}
+
+# map
+function map() #{{{
+{
+	if [ -z "$1" ]
+	then
+		return
+	fi
+	for i in {1..${#FUNCTION_FROM[*]}}
+	do
+		if [ "$1" = "${FUNCTION_FROM[$i]}" ]
+		then
+			reply "Function ${FUNCTION_FROM[$i]} maps to ${FUNCTION_TO[$i]}"
+			return
+		fi
+	done
+	reply "Function $1 does not map to anything."
+} #}}}
+
+# load [FUNCTION_FROM,FUNCTION_TO] [[exec_message]]
+function load() #{{{
+{
+	FUNCTION_FROM=()
+	FUNCTION_TO=()
+	if [ "$(ls -A $loaded_dir)" != "" ]
+	then
+		mv $loaded_dir/* $functions_dir
+	fi
+
+	for file in $(ls $functions_dir) $0
+	do
+		. $functions_dir/$file
+		for mapping in $(sed -n '/^#&`/s/^#&` //p' $functions_dir/$file)
+		do
+			FUNCTION_FROM+="$(echo $mapping | sed 's/->.*$//')"
+			FUNCTION_TO+="$(echo $mapping | sed 's/^.*->//')"
+		done
+		mv $functions_dir/$file $load_dir
+		print_warn "Function file \"$file\" loaded"
+	done
+
+	:> exec_message
+	echo "#!/bin/zsh" >> exec_message
+	echo "function exec_message()" >> exec_message
+	echo "{" >> exec_message
+	echo "	VALID=\"true\"" >> exec_message
+	echo "	case \$COMMAND in" >> exec_message
+	for i in {1..${#FUNCTION_FROM[*]}}
+	do
+		echo "		${FUNCTION_FROM[$i]})" >> exec_message
+		echo "			${FUNCTION_TO[$i]} \$ARGUMENTS" >> exec_message
+		echo "			;;" >> exec_message
+	done
+	echo "		*)" >> exec_message
+	echo "			VALID=\"false\"" >> exec_message
+	echo "			;;" >> exec_message
+	echo "	esac" >> exec_message
+	echo "}" >> exec_message
+	. ./exec_message
+	print_warn "Now Loaded: ${FUNCTION_FROM[*]}"
+} #}}}
+
+load
 
 tmp="fyodor${tmpextension}"
-while true
+# main loop
+while true #{{{
 do
 	for email in $(ls $parsebox)
 	do
 		print_warn "Please do not C-c"
-		address=
-		date=
-		message=
-		command=
-		arguments=
-		reply=
-		amount=
-		attempted="yes"
+		VALID="false"
+		ADDRESS=""
+		COMMAND=""
+		ARGUMENTS=""
+		RETURN_TYPE=""
+		AMOUNT=""
 		:> $tmp
 
 		print_message "Parsing message..."
 		parse_message $email
-		if [ ! -z "$command" ]
+		if [ ! -z "$COMMAND" ]
 		then
-			exec_message "$message"
+			exec_message "$COMMAND $ARGUMENTS"
 		fi
 
-		if [ "$attempted" = "yes" ]
+		if [ "$VAILD" = "true" ]
 		then
 			if [[ "$(wc -l $tmp | awk '{print $1}')" -gt "0" ]]
 			then
@@ -331,23 +368,20 @@ do
 				print_error "--------- BEGIN ---------"
 				cat $tmp
 				print_error "---------- END ----------"
-				send_rephrase
+				reply "Function execution failed"
 			else
 				mv $parsebox/$email $processed
-				if [ -z "$reply" ]
-				then
-					print_warn "Executed succesfully, but sent nothing"
-				else
-					print_message "Executed succesfully"
-				fi
+				print_message "Executed succesfully"
 			fi
 		else
 			mv $parsebox/$email $nonexistant
 			print_error "Function attempting to be executed does not exist"
-			send_rephrase
+			reply "Function does not exist"
 		fi
 		rm $tmp
+		sleep 1
 	done
 	print_note "Safe to C-c right now."
 	sleep 1
-done
+done #}}}
+

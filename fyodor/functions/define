@@ -1,8 +1,8 @@
 #!/bin/zsh
-#&` define -> define
-#&` def -> define
-#&` redefine -> redefine
-#&` rdef -> redefine
+#&` define->define
+#&` def->define
+#&` redefine->redefine
+#&` rdef->redefine
 
 definition_dir="definitions"
 [ -d "$definition_dir" ] || mkdir -p "$definition_dir"
@@ -28,7 +28,7 @@ function define() #{{{
 			fi
 			rm "${word}.tmp"
 		fi
-		SMS "$address" "$(cat \"$word\")"
+		reply "$(cat \"$word\")"
 	done
 	popd
 } #}}}

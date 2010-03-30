@@ -1,22 +1,17 @@
 #!/bin/zsh
+#&` calculate->calculate
+#&` calc->calculate
+#&` cal->calculate
+#&` bc->calculate
+#&` dc->dc
 
-function calculate() # &`
+function calculate()
 {
-	reply="$(echo "$1" | bc)"
+	reply "$(echo "$1" | bc)"
 }
 
-function calc() # &`
+function dc()
 {
-	calculate $*
-}
-
-function cal() # &`
-{
-	calculate $*
-}
-
-function dc() # &`
-{
-	reply="$(echo "$1"(echo "1+160*$amount") | dc)"
+	reply "$(echo "$1" | dc)"
 }
 

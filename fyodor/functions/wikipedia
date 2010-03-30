@@ -1,14 +1,16 @@
 #!/bin/zsh
+#&` wikipedia->wikipedia
+#&` wiki->wikipedia
+#&` rewikipedia->rewikipedia
+#&` rwikipedia->rewikipedia
+#&` rwiki->rewikipedia
+#&` rewiki->rewikipedia
 
 wikipedia_dir="wikipedia"
 [ -d "$wikipedia_dir" ] || mkdir -p "$wikipedia_dir"
 
-function wiki() # &`
-{
-	wikipedia $*
-}
-
-function wikipedia() # &`
+# wikipedia
+function wikipedia() #{{{
 {
 	if [ -z "$1" ]
 	then
@@ -21,40 +23,28 @@ function wikipedia() # &`
 		cat "$1" | sed -n '/<p>/,$ p' | lynx --stdin --dump | sed -e 's/\[[^]]*\]//g' -e 's/\^//g' -e '/^[ \t]*$/d' > "${1}.tmp"
 		mv "${1}.tmp" "${1}"
 	fi
-	reply="$(cat "$1")"
-	if [ -z "$reply" ]
+	if [ -z "$(cat "$1")" ]
 	then
-		reply="There was some error in the wiki-ing process. Saving a note so that djef. can look at this page. Sorry for the inconvinience and thanks!"
+		reply "There was some error in the wiki-ing process. Saving a note so that djef. can look at this page. Sorry for the inconvinience and thanks!"
 	fi
+	reply "$(cat "$1")"
 	popd
 	return
-}
+} #}}}
 
-function rwiki() # &`
-{
-	rewikipedia $*
-}
-
-function rwikipedia() # &`
-{
-	rewikipedia $*
-}
-
-function rewiki() # &`
-{
-	rewikipedia $*
-}
-
-function rewikipedia() # &`
+# rewikipedia
+function rewikipedia() #{{{
 {
 	if [ -z "$1" ]
 	then
 		return 1
 	fi
+	pushd $wikipedia_dir
 	if [ -f "$1" ]
 	then
 		rm "$1"
 	fi
+	popd
 	wikipedia "$1"
-}
+} #}}}
 

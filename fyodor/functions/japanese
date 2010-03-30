@@ -1,55 +1,40 @@
 #!/bin/zsh
+#&` engjap->engjap
+#&` englishtojapanese->engjap
 
 japanese_dir="japanese"
 [ -d "$japanese_dir" ] || mkdir -p $japanese_dir
 
-function engjap() # &`
+function engjap() #
 {
 	if [ -z "$1" ]
 	then
 		return
 	fi
 	pushd $japanese_dir
-	# Eng -> Jap
-	wget -q -U Mozilla -O "${1}.tmp" "http://jisho.org/words?jap=&nolimit=1&page=&dict=edict&eng=${1}"
-	# Jap -> Eng
-	# wget -q -U Mozilla -O "${1}.tmp" "http://jisho.org/words?jap=${1}&eng=&dict=edict"
-	cat "${1}.tmp" | sed '1,/<div id="result">/d' |
-	egrep '(class="kanji"|kana_column|meanings_column)' |
-	sed -e 's/[ \t][ \t]*/ /g' -e 's/<[^<>]*>//g' > "$1"
-	rm "${1}.tmp"
-
-	print_message "Sending: "
-	if [ -z "$amount" ]
+	if [ ! -f "$1" ]
 	then
-		amount="-1"
-	fi
-	amount="$(echo $amount | sed 's/-//')"
-	if [ "$amount" = "0" ]
-	then
-		amount="25"
+		wget -q -U Mozilla -O "${1}.tmp" "http://jisho.org/words?jap=&nolimit=1&page=&dict=edict&eng=${1}"
+		sed '1,/<div id="result">/d' "${1}.tmp" |
+		egrep '(class="kanji"|kana_column|meanings_column)' |
+		sed -e 's/[ \t]\+/ /g' -e 's/<[^>]*>//g' > "$1"
+		rm "${1}.tmp"
 	fi
 
-	amount="$(echo "(${amount}-1) % 25" | bc)"
-	echo "$amount"
-	echo "$address"
-	for part in {0..$amount}
+	total="$(echo "$AMOUNT -1" | bc)"
+	AMOUNT="1"
+	for i in {0..$total}
 	do
-		headnum="$(echo "3 + ( ${part} * 3 )" | bc)"
+		headnum="$(echo "3 + ( $i * 3 )" | bc)"
 		japtext="$(head -n$headnum "$1" | tail -n3 | head -n2)"
 		engtext="$(head -n$headnum "$1" | tail -n1)"
 		if [ ! -z "$engtext" ]
 		then
-			convert -background  white -fill black -font Kochi-Gothic-Regular -pointsize 18 label:"${japtext}" "${1}-${part}.jpg"
+			convert -background  white -fill black -font Kochi-Gothic-Regular \
+			-pointsize 18 label:"${japtext}" "${1}-${i}.jpg"
 
-			(cat engjap.head; echo "$engtext" | base64; cat engjap.middle; cat "${1}-${part}.jpg" | base64; cat engjap.tail)
-
-			for recipient in $address
-			do
-				number="$(echo "$recipient" | sed 's/@.*//')"
-				print_message "... to $number"
-				(cat engjap.head; echo "$engtext" | base64; cat engjap.middle; cat "${1}-${part}.jpg" | base64; cat engjap.tail ) | msmtp "${number}@vzwpix.com"
-			done
+			mv "${1}-${i}.jpg" ${attachments}
+			MMS "${engtext}"
 		fi
 		sleep 1
 	done

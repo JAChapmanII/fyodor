@@ -18,17 +18,17 @@ function define() #{{{
 		then
 			lynx -dump "${SEARCH} $word" | tee "${word}.tmp" > "$word"
 			sed -i -e '1,/Definitions/d' -e '/^$/,$d' -e '/\[/d' "$word"
-			if [ "$(cat \"$word\")" = "" ]
+			if [ "$(cat "$word")" = "" ]
 			then
 				sed -n '/Did you mean:/ s/\[[^:]*: //p' "${word}.tmp" > "$word"
-				if [ "$(cat \"$word\")" = "" ]
+				if [ "$(cat "$word")" = "" ]
 				then
 					echo "No definitions found for ${word}. If you think this is a mistake, try 'redefine $word'" > "$word"
 				fi
 			fi
 			rm "${word}.tmp"
 		fi
-		reply "$(cat \"$word\")"
+		reply "$(cat "$word")"
 	done
 	popd
 } #}}}

@@ -28,17 +28,18 @@ while true
 do
 	{ offlineimap -qo -u Machine.MachineUI } &> $tmp &
 	loops="0"
-	while [ "$loops" != "30" ]
+	while [ "$loops" -le "300" ]
 	do
 		loops="$(($loops + 1))"
 		if [ "$(pgrep offlineimap)" = "" ]
 		then
 			loops="666"
 		fi
-		sleep 1
+		sleep 0.1
 	done
 	if [ "$loops" != "666" ]
 	then
+		print_error "Had to kill offlineimap"
 		kill "$(pgrep offlineimap)"
 	fi
 

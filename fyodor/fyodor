@@ -5,7 +5,7 @@
 #&` load->load
 #&` map->map
 
-. $XDG_CONFIG_HOME/zsh/functions.zsh
+. ${XDG_CONFIG_HOME}/zsh/functions.zsh
 . ~/global
 
 VERBOSE="false"
@@ -53,7 +53,7 @@ function parse_message() #{{{
 {
 	AMOUNT="1"
 	message="$(cat $parsebox/$1)"
-	ADDRESS="$(echo $message | tr ' ,<>' '\n' | grep '@' | head -n1)"
+	ADDRESS="$(echo $message | grep 'From: ' | tr ' ,<>' '\n' | grep '@' | head -n1)"
 	print_note "Address is: ${ADDRESS}"
 
 	BOUNDARY=""
@@ -150,7 +150,7 @@ function MMS() #{{{
 	number="$(echo $ADDRESS | sed 's/\(.*\)@.*/\1/')"
 	domain="$(echo $ADDRESS | sed 's/.*@\(.*\)/\1/')"
 	case $domain in
-		vtext.com)
+		[Vv][Tt][Ee][Xx][Tt].[Cc][Oo][Mm])
 			domain="vzwpix.com"
 			;;
 		*)
@@ -302,17 +302,27 @@ function load() #{{{
 		mv $loaded_dir/* $functions_dir
 	fi
 
-	for file in $(ls $functions_dir) $0
+	for mapping in $(sed -n '/^#&`/s/^#&` //p' $home/fyodor)
 	do
-		. $functions_dir/$file
-		for mapping in $(sed -n '/^#&`/s/^#&` //p' $functions_dir/$file)
-		do
-			FUNCTION_FROM+="$(echo $mapping | sed 's/->.*$//')"
-			FUNCTION_TO+="$(echo $mapping | sed 's/^.*->//')"
-		done
-		mv $functions_dir/$file $load_dir
-		print_warn "Function file \"$file\" loaded"
+		FUNCTION_FROM+="$(echo $mapping | sed 's/->.*$//')"
+		FUNCTION_TO+="$(echo $mapping | sed 's/^.*->//')"
 	done
+	print_warn "Function file \"~/fyodor\" loaded"
+
+	if [ "$(ls $functions_dir)" != "" ]
+	then
+		for file in $(ls $functions_dir)
+		do
+			. $functions_dir/$file
+			for mapping in $(sed -n '/^#&`/s/^#&` //p' $functions_dir/$file)
+			do
+				FUNCTION_FROM+="$(echo $mapping | sed 's/->.*$//')"
+				FUNCTION_TO+="$(echo $mapping | sed 's/^.*->//')"
+			done
+			mv $functions_dir/$file $loaded_dir
+			print_warn "Function file \"$file\" loaded"
+		done
+	fi
 
 	:> exec_message
 	echo "#!/bin/zsh" >> exec_message
@@ -359,7 +369,7 @@ do
 			exec_message "$COMMAND $ARGUMENTS"
 		fi
 
-		if [ "$VAILD" = "true" ]
+		if [ "$VALID" = "true" ]
 		then
 			if [[ "$(wc -l $tmp | awk '{print $1}')" -gt "0" ]]
 			then
@@ -368,7 +378,8 @@ do
 				print_error "--------- BEGIN ---------"
 				cat $tmp
 				print_error "---------- END ----------"
-				reply "Function execution failed"
+				AMOUNT="1"
+				SMS "Function execution failed"
 			else
 				mv $parsebox/$email $processed
 				print_message "Executed succesfully"
@@ -376,12 +387,13 @@ do
 		else
 			mv $parsebox/$email $nonexistant
 			print_error "Function attempting to be executed does not exist"
-			reply "Function does not exist"
+			AMOUNT="1"
+			SMS "Function does not exist"
 		fi
 		rm $tmp
+		print_note "Safe to C-c right now."
 		sleep 1
 	done
-	print_note "Safe to C-c right now."
 	sleep 1
 done #}}}
 

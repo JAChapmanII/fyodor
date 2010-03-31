@@ -1,8 +1,6 @@
 #!/bin/zsh
-#&` define->define
-#&` def->define
-#&` redefine->redefine
-#&` rdef->redefine
+#&` define|def->define
+#&` redefine|rdef->redefine
 
 definition_dir="definitions"
 [ -d "$definition_dir" ] || mkdir -p "$definition_dir"

@@ -1,6 +1,5 @@
 #!/bin/zsh
-#&` engjap->engjap
-#&` englishtojapanese->engjap
+#&` engjap|englishtojapanese->engjap
 
 japanese_dir="japanese"
 [ -d "$japanese_dir" ] || mkdir -p $japanese_dir

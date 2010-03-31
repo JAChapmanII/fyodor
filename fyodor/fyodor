@@ -69,7 +69,7 @@ function parse_message() #{{{
 		message="$(echo $message | sed "/${BOUNDARY}/,$ d/")"
 	fi
 	message="$(echo $message |
-	sed -e 's/^[ \t]*\(.*\)[ \t]*$/\1/' -e 's/[ \t]\+/ /g')"
+	sed -e 's/^[ \t]*\(.*\)[ \t]*$/\1/' -e 's/$/ &/' -e 's/[ \t]\+/ /g')"
 
 	if [ -z "$message" ]
 	then

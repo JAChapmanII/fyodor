@@ -1,8 +1,5 @@
 #!/bin/zsh
-#&` calculate->calculate
-#&` calc->calculate
-#&` cal->calculate
-#&` bc->calculate
+#&` calculate|calc|cal|bc->calculate
 #&` dc->dc
 
 function calculate()

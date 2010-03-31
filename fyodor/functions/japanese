@@ -1,23 +1,52 @@
 #!/bin/zsh
 #&` engjap|englishtojapanese->engjap
 #&` japeng|japanesetoenglish->japeng
+#&` translate_japanese->translate_japanese
 
 japanese_dir="japanese"
 [ -d "$japanese_dir" ] || mkdir -p $japanese_dir
 
-# engjap
-function engjap() #{{{
+function translate_japanese()
 {
+	order="eng"
+	args="$(echo $* | head -n1)"
+	first="$(echo $args | cut -c1)"
+	while [ "$first" = "-" ]
+	do
+		arg="$(echo $args | cut -f1 -d' ')"
+		case "$arg" in
+			-[Jj]|--[Jj][Aa][Pp][Aa][Nn][Ee][Ss][Ee])
+				order="jap"
+				;;
+			-[Ee]|--[Ee][Nn][Gg][Ll][Ii][Ss][Hh])
+				order="eng"
+				;;
+			*)
+				;;
+		esac
+		args="$(echo $args | cut -f2-999 -d' ')"
+		first="$(echo $args | cut -c1)"
+	done
+
 	if [ -z "$1" ]
 	then
 		return
 	fi
+	if [ "$order" = "eng" ]
+	then
+		ENG="$1"
+		JAP="$2"
+	else
+		ENG="$2"
+		JAP="$1"
+	fi
+
 	pushd $japanese_dir
 	if [ ! -f "$1" ]
 	then
 		JISHO_JAP="http://jisho.org/words?jap="
 		JISHO_ENG="&nolimit=1&page=&dict=edict&eng="
-		wget -q -U Mozilla -O "${1}.tmp" "${JISHO_JAP}${JISHO_ENG}${1}"
+		wget -q -U Mozilla -O "${1}.tmp" "${JISHO_JAP}${JAP}${JISHO_ENG}${ENG}"
 		sed '1,/<div id="result">/d' "${1}.tmp" |
 		egrep '(class="kanji"|kana_column|meanings_column)' |
 		sed 's/<[^>]*>//g' > "$1"
@@ -43,45 +72,18 @@ function engjap() #{{{
 	done
 
 	popd
+
+}
+
+# engjap
+function engjap() #{{{
+{
+	translate_japanese --english "$1"
 } #}}}
 
 # japeng
 function japeng() #{{{
 {
-	if [ -z "$1" ]
-	then
-		return
-	fi
-	pushd $japanese_dir
-	if [ ! -f "$1" ]
-	then
-		JISHO_JAP="http://jisho.org/words?jap="
-		JISHO_ENG="&nolimit=1&page=&dict=edict&eng="
-		wget -q -U Mozilla -O "${1}.tmp" "${JISHO_JAP}${1}${JISHO_ENG}"
-		sed '1,/<div id="result">/d' "${1}.tmp" |
-		egrep '(class="kanji"|kana_column|meanings_column)' |
-		sed 's/<[^>]*>//g' > "$1"
-		rm "${1}.tmp"
-	fi
-
-	total="$(echo "$AMOUNT -1" | bc)"
-	AMOUNT="1"
-	for i in {0..$total}
-	do
-		headnum="$(echo "3 + ( $i * 3 )" | bc)"
-		japtext="$(head -n$headnum "$1" | tail -n3 | head -n2)"
-		engtext="$(head -n$headnum "$1" | tail -n1)"
-		if [ ! -z "$engtext" ]
-		then
-			convert -background  white -fill black -font Kochi-Gothic-Regular \
-			-pointsize 18 label:"${japtext}" "${1}-${i}.jpg"
-
-			mv "${1}-${i}.jpg" ${attachments}
-			MMS "${engtext}"
-		fi
-		sleep 1
-	done
-
-	popd
+	translate_japanese --japanese "$1"
 } #}}}
 

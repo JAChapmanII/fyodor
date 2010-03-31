@@ -4,7 +4,8 @@
 comic_dir="${prefix}/comics"
 [ -d "$comic_dir" ] || mkdir -p $comic_dir
 
-function xkcd()
+# xkcd
+function xkcd() #{{{
 {
 	pushd $comic_dir
 	if [ ! -f "xkcd_$1" ]
@@ -44,5 +45,5 @@ function xkcd()
 	MMS "$title
 	[$alt]"
 	popd
-}
+} #}}}
 

@@ -1,3 +1,44 @@
 #!/bin/zsh
+#&` xkcd->xkcd
 
+comic_dir="${prefix}/comics"
+[ -d "$comic_dir" ] || mkdir -p $comic_dir
+
+function xkcd()
+{
+	pushd $comic_dir
+	if [ ! -f "xkcd_$1" ]
+	then
+		wget -O "xkcd.main" "http://www.xkcd.com"
+		MAX="$(sed 's_.*Permanent link to this comic: http://xkcd.com/\([0-9]\+\)/.*_\1_' xkcd.main)"
+		if [ -z "$1" ]
+		then
+			requested="$MAX"
+		else
+			requested="$1"
+		fi
+		if [ "$1" -gt "$MAX" ]
+		then
+			return 1
+		fi
+		wget -O "xkcd_$requested" "http://www.xkcd.com/$requested"
+		src="$(sed -n '/^<img/ s/.*src="\([^"]*\)".*/\1/p' "xkcd_$requested")"
+		title="$(sed -n '/^<img/ s/.*alt="\([^"]*\)".*/\1/p' "xkcd_$requested")"
+		alt="$(sed -n '/^<img/ s/.*title="\([^"]*\)".*/\1/p' "xkcd_$requested")"
+		wget -O "$(basename $src)" "$src"
+
+		echo "src=\"$src\"" > "xkcd_$requested"
+		echo "title=\"$title\"" >> "xkcd_$requested"
+		echo "alt=\"$title\"" >> "xkcd_$requested"
+	fi
+
+	src="$(sed -n '/^<img/ s/.*src="\([^"]*\)".*/\1/p' "xkcd_$requested")"
+	title="$(sed -n '/^<img/ s/.*alt="\([^"]*\)".*/\1/p' "xkcd_$requested")"
+	alt="$(sed -n '/^<img/ s/.*title="\([^"]*\)".*/\1/p' "xkcd_$requested")"
+
+	cp "$(basename $src)" $attachments
+	MMS "$title
+	[$alt]"
+	popd
+}
 

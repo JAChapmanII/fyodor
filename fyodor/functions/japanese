@@ -17,9 +17,11 @@ function translate_japanese()
 		case "$arg" in
 			-[Jj]|--[Jj][Aa][Pp][Aa][Nn][Ee][Ss][Ee])
 				order="jap"
+				shift
 				;;
 			-[Ee]|--[Ee][Nn][Gg][Ll][Ii][Ss][Hh])
 				order="eng"
+				shift
 				;;
 			*)
 				;;
@@ -49,7 +51,7 @@ function translate_japanese()
 		wget -q -U Mozilla -O "${1}.tmp" "${JISHO_JAP}${JAP}${JISHO_ENG}${ENG}"
 		sed '1,/<div id="result">/d' "${1}.tmp" |
 		egrep '(class="kanji"|kana_column|meanings_column)' |
-		sed 's/<[^>]*>//g' > "$1"
+		sed -e 's/<[^>]*>//g' > "$1"
 		rm "${1}.tmp"
 	fi
 
@@ -58,7 +60,8 @@ function translate_japanese()
 	for i in {0..$total}
 	do
 		headnum="$(echo "3 + ( $i * 3 )" | bc)"
-		japtext="$(head -n$headnum "$1" | tail -n3 | head -n2)"
+		japtext="$(head -n$headnum "$1" | tail -n3 |
+		head -n2 | sed 's/[ \t]\+/ /g')"
 		engtext="$(head -n$headnum "$1" | tail -n1)"
 		if [ ! -z "$engtext" ]
 		then

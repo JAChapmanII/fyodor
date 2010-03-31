@@ -9,12 +9,12 @@ definition_dir="definitions"
 function define() #{{{
 {
 	pushd $definition_dir
-	SEARCH="http://www.google.com/search?q=define: "
+	GOOGWORD="http://www.google.com/search?q=define: "
 	for word in $@
 	do
 		if [ ! -f "$word" ];
 		then
-			lynx --nolist --dump "${SEARCH} $word" | tee "${word}.tmp" > "$word"
+			lynx --nolist --dump "${GOOGWORD} $word" | tee "${word}.tmp" > "$word"
 			sed -i -e '1,/Definitions/d' "$word"
 			if [ "$(cat "$word")" = "" ]
 			then

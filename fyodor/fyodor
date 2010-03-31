@@ -1,6 +1,5 @@
 #!/bin/zsh
-#&` list->list_functions
-#&` list_functions->list_functions
+#&` list|list_functions->list_functions
 #&` help->help
 #&` load->load
 #&` map->map

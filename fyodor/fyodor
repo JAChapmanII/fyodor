@@ -119,13 +119,32 @@ function SMS() #{{{
 	print_message "Sending $AMOUNT message(s) to $ADDRESS: "
 
 	total="$(echo "$AMOUNT -1" | bc)"
+	message="$(echo $1 | sed 's/[ \t]\+/ /')"
 	for i in {0..$total}
 	do
-		start_cut="$(echo "1+157*$i" | bc)"
-		end_cut="$(echo "157+157*$i" | bc)"
-		section="$(echo "$1" | tr '\n' ' ' | cut -c ${start_cut}-${end_cut})"
-		section="$(echo $section | sed 's/[ \t]\+/ /g')"
-
+		if [ "$message" = "" ]
+		then
+			print_note "Nothing left to send."
+			return
+		fi
+		section="$(echo $message | sed -n '
+		:add
+		$! {
+			N
+			b add
+		}
+		$ {
+			s/\(.\{1,156\}\).*/\1/p
+		}')"
+		message="$(echo $message | sed -n '
+		:add
+		$! {
+			N
+			b add
+		}
+		$ {
+			s/.\{1,156\}\(.*\)/\1/p
+		}')"
 		if [ ! -z "$section" ]
 		then
 			print_note "Part $part:"
@@ -165,12 +184,27 @@ function MMS() #{{{
 	print_message "Sending $AMOUNT message(s) to $ADDRESS with $files: "
 
 	total="$(echo "$AMOUNT -1" | bc)"
+	message="$(echo $1 | sed 's/[ \t]\+/ /')"
 	for i in {0..$total}
 	do
-		start_cut="$(echo "1+997*$i" | bc)"
-		end_cut="$(echo "997+997*$i" | bc)"
-		section="$(echo "$1" | tr '\n' ' ' | cut -c ${start_cut}-${end_cut})"
-		section="$(echo $section | sed 's/[ \t]\+/ /g')"
+		section="$(echo $message | sed -n '
+		:add
+		$! {
+			N
+			b add
+		}
+		$ {
+			s/\(.\{1,996\}\).*/\1/p
+		}')"
+		message="$(echo $message | sed -n '
+		:add
+		$! {
+			N
+			b add
+		}
+		$ {
+			s/.\{1,996\}\(.*\)/\1/p
+		}')"
 
 		# Header with $section {{{
 		mail=""

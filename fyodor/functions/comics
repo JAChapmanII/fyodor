@@ -8,20 +8,27 @@ comic_dir="${prefix}/comics"
 function xkcd() #{{{
 {
 	pushd $comic_dir
-	if [ ! -f "xkcd_$1" ]
+	wget -q -O "xkcd.main" "http://www.xkcd.com"
+	MAX="$(sed -n 's_.*Permanent link to this comic: http://xkcd.com/\([0-9]\+\)/.*_\1_p' xkcd.main)"
+	if [ -z "$MAX" ]
 	then
-		wget -q -O "xkcd.main" "http://www.xkcd.com"
-		MAX="$(sed -n 's_.*Permanent link to this comic: http://xkcd.com/\([0-9]\+\)/.*_\1_p' xkcd.main)"
-		if [ -z "$1" ]
+		MAX="725" # The most recent comic as of 11/04/10
+	fi
+
+	if [ -z "$1" ]
+	then
+		requested="$MAX"
+	else
+		if [ "$1" -gt "$MAX" ] || [ "$1" -lt "1" ]
 		then
-			requested="$MAX"
+			requested="$(echo "$RANDOM % $MAX + 1" | bc)"
 		else
 			requested="$1"
 		fi
-		if [ "$requested" -gt "$MAX" ] || [ "$requested" -lt "1" ]
-		then
-			requested="$(echo "$RANDOM % $MAX + 1" | bc)"
-		fi
+	fi
+
+	if [ ! -f "xkcd_$requested" ]
+	then
 		wget -q -O "xkcd_$requested" "http://www.xkcd.com/$requested"
 		src="$(sed -n '/^<img/ s/.*src="\([^"]*\)".*/\1/p' "xkcd_$requested")"
 		title="$(sed -n '/^<img/ s/.*alt="\([^"]*\)".*/\1/p' "xkcd_$requested")"
@@ -34,8 +41,8 @@ function xkcd() #{{{
 	fi
 
 	src="$(sed -n 's/.*src="\([^"]*\)".*/\1/p' "xkcd_$requested")"
-	title="$(sed -n 's/.*alt="\([^"]*\)".*/\1/p' "xkcd_$requested")"
-	alt="$(sed -n 's/.*title="\([^"]*\)".*/\1/p' "xkcd_$requested")"
+	title="$(sed -n 's/.*title="\([^"]*\)".*/\1/p' "xkcd_$requested")"
+	alt="$(sed -n 's/.*alt="\([^"]*\)".*/\1/p' "xkcd_$requested")"
 
 	if [ -z "$src" ] || [ -z "$title" ] || [ -z "$alt" ] || [ ! -f "$(basename $src)" ]
 	then

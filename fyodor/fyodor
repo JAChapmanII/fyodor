@@ -102,7 +102,7 @@ function parse_message() #{{{
 	done
 
 	COMMAND="$(echo $message | cut -f1 -d' ')"
-	ARGUMENTS="$(echo $message | cut -f2-999 -d' ')"
+	ARGUMENTS="$(echo $message | cut -f2-999 -d' ' | sed 's/[ \t]\+\(.*\)[ \t]\+$/\1/')"
 
 	print_note "Command is: $COMMAND"
 	print_note "Arguments are: $ARGUMENTS"
@@ -119,7 +119,7 @@ function SMS() #{{{
 	print_message "Sending $AMOUNT message(s) to $ADDRESS: "
 
 	total="$(echo "$AMOUNT -1" | bc)"
-	message="$(echo $1 | sed 's/[ \t]\+/ /')"
+	message="$(echo $1 | sed 's/[ \t]\+/ /' | tr -cd '\11\12\15\40-\176')"
 	for i in {0..$total}
 	do
 		if [ "$message" = "" ]
@@ -184,7 +184,7 @@ function MMS() #{{{
 	print_message "Sending $AMOUNT message(s) to $ADDRESS with $files: "
 
 	total="$(echo "$AMOUNT -1" | bc)"
-	message="$(echo $1 | sed 's/[ \t]\+/ /')"
+	message="$(echo $1 | sed 's/[ \t]\+/ /' | tr -cd '\11\12\15\40-\176')"
 	for i in {0..$total}
 	do
 		section="$(echo $message | sed -n '

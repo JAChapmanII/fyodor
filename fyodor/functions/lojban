@@ -1,0 +1,27 @@
+#!/bin/sh
+#&` [Ll][Oo][Jj]*->lojban
+
+lojban_dir="lojban"
+[ -d "$lojban_dir" ] || mkdir -p $lojban_dir
+
+function lojban()
+{
+	pushd $lojban_dir
+	if [ -z "$1" ]
+	then
+		reply "Please specify a search term."
+		popd
+		return
+	fi
+	result="$(grep "$1" "cmavo" "cmavo selma'o" "gismu" "lujvo" "rafsi" |
+	sed 's/[ \t]\+/ /g')"
+	if [ -z "$result" ]
+	then
+		reply "No results for your search term."
+		popd
+		return
+	fi
+
+	reply $result
+	popd
+}

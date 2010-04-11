@@ -24,24 +24,31 @@ pushd $maildir
 
 print_message "Fetching mail..."
 pnonew=true
+timeout="600"
+failures="0"
 while true
 do
 	{ offlineimap -qo -u Machine.MachineUI } &> $tmp &
 	loops="0"
-	while [ "$loops" -le "600" ]
+	while [ "$loops" -le "$timeout" ]
 	do
 		loops="$(($loops + 1))"
 		if [ "$(pgrep offlineimap)" = "" ]
 		then
-			loops="666"
+			loops="$(($timeout + 66))"
 		fi
 		sleep 0.1
 	done
-	if [ "$loops" -lt "666" ]
+	if [ "$loops" -lt "$(($timeout + 66))" ]
 	then
 		print_error "Had to kill offlineimap"
 		kill "$(pgrep offlineimap)"
+		timeout="$(($timeout + $timeout / 2))"
+		failures="$(($failures + 1))"
+		print_note "Failed $failures time(s), increased timeout to $timeout"
 	else
+		timeout="600"
+		failures="0"
 		echo "---" >> $tmp
 		sed -i '/^\/usr\/lib\/python2.6\/site-packages\/offlineimap\// d' $tmp
 		sed -i '/self.sslobj = socket.ssl(self.sock,/ d' $tmp

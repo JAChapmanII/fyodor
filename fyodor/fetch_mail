@@ -42,6 +42,7 @@ do
 		print_error "Had to kill offlineimap"
 		kill "$(pgrep offlineimap)"
 	else
+		echo "---" >> $tmp
 		sed -i '/^\/usr\/lib\/python2.6\/site-packages\/offlineimap\// d' $tmp
 		sed -i '/self.sslobj = socket.ssl(self.sock,/ d' $tmp
 		messages="$(cat $tmp)"

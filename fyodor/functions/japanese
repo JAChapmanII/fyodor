@@ -1,7 +1,6 @@
 #!/bin/zsh
-#&` engjap|englishtojapanese->engjap
-#&` japeng|japanesetoenglish->japeng
-#&` translate_japanese->translate_japanese
+#&` [Ee][Nn][Gg]*[Jj][Aa][Pp]*->engjap
+#&` [Jj][Aa][Pp]*[Ee][Nn][Gg]*->japeng
 
 japanese_dir="japanese"
 [ -d "$japanese_dir" ] || mkdir -p $japanese_dir

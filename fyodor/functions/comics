@@ -1,5 +1,5 @@
 #!/bin/zsh
-#&` xkcd->xkcd
+#&` [Xx][Kk][Cc][Dd]->xkcd
 
 comic_dir="${prefix}/comics"
 [ -d "$comic_dir" ] || mkdir -p $comic_dir

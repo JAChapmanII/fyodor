@@ -41,37 +41,39 @@ do
 	then
 		print_error "Had to kill offlineimap"
 		kill "$(pgrep offlineimap)"
-	fi
-
-	sed -i '/^\/usr\/lib\/python2.6\/site-packages\/offlineimap\// d' $tmp
-	sed -i '/self.sslobj = socket.ssl(self.sock,/ d' $tmp
-	messages="$(cat $tmp)"
-	$(echo $messages >> $logfile)
-	if [ "x`echo $messages | grep 'err'`" != "x" ]
-	then
-		$(echo $messages >> $errorfile)
-		print_error "There seems to have been an error."
-		echo $messages
-		exit 1
-	fi
-	if [ "x`ls $inbox/new`" != "x" ]
-	then
-		print_warn "    New mail!"
-		pnonew=true
-		cp $inbox/new/* $parsebox
-		mv $inbox/new/* $inbox/cur/
 	else
-		if [ "$pnonew" = true ]
+		sed -i '/^\/usr\/lib\/python2.6\/site-packages\/offlineimap\// d' $tmp
+		sed -i '/self.sslobj = socket.ssl(self.sock,/ d' $tmp
+		messages="$(cat $tmp)"
+		$(echo $messages >> $logfile)
+		if [ "x`echo $messages | grep 'err'`" != "x" ]
 		then
-			print_note "No new mail"
-			pnonew=false
+			$(echo $messages >> $errorfile)
+			print_error "There seems to have been an error."
+			print_error "Wating 3 minutes and then trying again."
+			sleep 180
+			print_note "Continuing"
+		else
+			if [ "x`ls $inbox/new`" != "x" ]
+			then
+				print_warn "    New mail!"
+				pnonew=true
+				cp $inbox/new/* $parsebox
+				mv $inbox/new/* $inbox/cur/
+			else
+				if [ "$pnonew" = true ]
+				then
+					print_note "No new mail"
+					pnonew=false
+				fi
+			fi
+			$(echo "$eightydashes" >> $logfile)
+			$(tail -n$savelines $logfile > $tmp)
+			$(mv $tmp $logfile)
+
+			sleep 2
 		fi
 	fi
-	$(echo "$eightydashes" >> $logfile)
-	$(tail -n$savelines $logfile > $tmp)
-	$(mv $tmp $logfile)
-
-	sleep 2
 done
 popd
 

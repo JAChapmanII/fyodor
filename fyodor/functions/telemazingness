@@ -1,4 +1,5 @@
 #!/bin/zsh
+#&` [Pp][Nn][Mm]->pnm
 
 phoneDir="phoneDir"
 [ -d "$phoneDir" ] || mkdir -p $phoneDir

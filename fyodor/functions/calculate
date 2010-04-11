@@ -1,6 +1,6 @@
 #!/bin/zsh
-#&` calculate|calc|cal|bc->calculate
-#&` dc->dc
+#&` [Cc][Aa][Ll]*|[Bb][Cc]->calculate
+#&` [Dd][Cc]->dc
 
 function calculate()
 {

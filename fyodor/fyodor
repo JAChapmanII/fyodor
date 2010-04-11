@@ -1,8 +1,8 @@
 #!/bin/zsh
-#&` list|list_functions->list_functions
-#&` help->help
-#&` load->load
-#&` map->map
+#&` [Ll][Ii][Ss][Tt]*->list_functions
+#&` [Hh][Ee][Ll][Pp]*->help
+#&` [Ll][Oo][Aa][Dd]*->load
+#&` [Mm][Aa][Pp]*->map
 
 . ${XDG_CONFIG_HOME}/zsh/functions.zsh
 . ~/global
@@ -304,7 +304,12 @@ function list_functions() # {{{
 # help
 function help() #{{{
 {
-	reply "Use 'list' to get a list of functions. Hopefully, they'll be self explanatory, else text djef., else you're screwed right now :p"
+	if [ ! -z "$1" ] && [ "$1" = "me" ]
+	then
+		reply "I'm sorry, it seems that we can't help you at this time. Please seek psychiatric help immediately."
+	else
+		reply "Use 'list' to get a list of functions. Hopefully, they'll be self explanatory, else text djef., else you're screwed right now :p"
+	fi
 } #}}}
 
 # map

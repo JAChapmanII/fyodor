@@ -1,6 +1,6 @@
 #!/bin/zsh
-#&` wikipedia|wiki->wikipedia
-#&` rewikipedia|rwikipedia|rwiki|rewiki->rewikipedia
+#&` [Ww][Ii][Kk][Ii]*->wikipedia
+#&` [Rr]*[Ww][Ii][Kk][Ii]*->rewikipedia
 
 wikipedia_dir="wikipedia"
 [ -d "$wikipedia_dir" ] || mkdir -p "$wikipedia_dir"

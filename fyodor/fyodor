@@ -116,6 +116,10 @@ function SMS() #{{{
 		return 1
 	fi
 
+	if [ "$AMOUNT" = "0" ]
+	then
+		AMOUNT="25"
+	fi
 	print_message "Sending $AMOUNT message(s) to $ADDRESS: "
 
 	total="$(echo "$AMOUNT -1" | bc)"
@@ -181,6 +185,10 @@ function MMS() #{{{
 		return 1
 	fi
 
+	if [ "$AMOUNT" = "0" ]
+	then
+		AMOUNT="25"
+	fi
 	print_message "Sending $AMOUNT message(s) to $ADDRESS with $files: "
 
 	total="$(echo "$AMOUNT -1" | bc)"
@@ -218,7 +226,7 @@ Content-Type: text/plain;
  name=\"text_01_000.txt\"
 Content-Location: text_01_000.txt
 
-$section
+$part $section
 
 " #}}}
 
@@ -280,8 +288,8 @@ Content-Disposition: attachment;
 	done
 } #}}}
 
-# reply {{{
-function reply()
+# reply
+function reply() #{{{
 {
 	if [ -z "$1" ]
 	then

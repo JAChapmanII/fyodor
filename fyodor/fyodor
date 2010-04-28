@@ -84,14 +84,16 @@ function parse_message() #{{{
 	do
 		arg="$(echo $message | cut -f1 -d' ')"
 		case "$arg" in
-			-S|--SMS)
+			-*[Ss]*)
 				RETURN_TYPE="SMS"
 				print_note "Set return type to SMS"
 				;;
-			-M|--MMS)
+			-*[Mm]*)
 				RETURN_TYPE="MMS"
 				print_note "Set return type to MMS"
 				;;
+			-*[Ee]*)
+				RETURN_TYPE="EMAIL"
 			*)
 				AMOUNT="$(echo $arg | sed 's/-*//g')"
 				print_note "Set amount to $AMOUNT"
@@ -288,6 +290,91 @@ Content-Disposition: attachment;
 	done
 } #}}}
 
+# Email recipients message number (Sends it all in one chunk)
+# EMAIL recipients message number
+function EMAIL() #{{{
+{
+	if [ -z "$1" ]
+	then
+		return 1
+	fi
+	files="$(ls ${attachments})"
+
+	print_message "Sending an EMAIL message to $ADDRESS with $files: "
+
+	message="$(echo $1 | sed 's/[ \t]\+/ /' | tr -cd '\11\12\15\40-\176')"
+
+	# Header with $section {{{
+	mail=""
+	mail="MIME-Version:1.0
+Content-Type: multipart/mixed;
+  boundary=\"__CONTENT_64564_PART_BOUNDARY__33243242__\"
+
+--__CONTENT_64564_PART_BOUNDARY__33243242__
+Content-Type: text/plain;
+ charset=utf-8;
+ name=\"text_01_000.txt\"
+Content-Location: text_01_000.txt
+
+$part $section
+
+" #}}}
+
+	# Attach files if there are any. Attaches all files it can to all
+	# with absolutely no checks what-so-ever. Fix at some point {{{
+	if [ ! -z "$files" ]
+	then
+		for file in $files
+		do
+			if [ "$(file $attachments/$file | grep 'JPEG image data')" != '' ]
+			then
+				# Middle with $file if JPEG {{{
+				mail+="--__CONTENT_64564_PART_BOUNDARY__33243242__
+Content-Type: image/jpeg;
+  name=\"$file\"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename=\"$file\"
+
+"
+				mail+="$(base64 $attachments/$file)
+" #}}}
+			fi
+			if [ "$(file $attachments/$file | grep 'PNG image data')" != '' ]
+			then
+				# Middle with $file if PNG {{{
+				mail+="--__CONTENT_64564_PART_BOUNDARY__33243242__
+Content-Type: image/png;
+  name=\"$file\"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename=\"$file\"
+
+"
+				mail+="$(base64 $attachments/$file)
+" #}}}
+			fi
+		done
+	fi #}}}
+
+	# Footer that ends everything {{{
+	mail+="
+--__CONTENT_64564_PART_BOUNDARY__33243242__--
+" #}}}
+
+	# If there are files or some message, send the damn thing
+	if [ ! -z "$message" ] || [ ! -z "$files" ]
+	then
+		echo $message
+		echo "$mail" | msmtp "$ADDRESS"
+	fi
+
+	for file in $files
+	do
+		rm ${attachments}/$file
+	done
+} #}}}
+
 # reply
 function reply() #{{{
 {
@@ -299,7 +386,12 @@ function reply() #{{{
 	then
 		MMS "$1"
 	else
-		SMS "$1"
+		if [ "$RETURN_TYPE" = "EMAIL" ]
+		then
+			EMAIL "$1"
+		else
+			SMS "$1"
+		fi
 	fi
 } #}}}
 

@@ -155,7 +155,7 @@ function SMS() #{{{
 		then
 			print_note "Part $part:"
 			echo "$section"
-			echo "$part $section" | mail "$ADDRESS"
+			echo "$i $section" | mail "$ADDRESS"
 		fi
 		sleep 1
 	done
@@ -228,7 +228,7 @@ Content-Type: text/plain;
  name=\"text_01_000.txt\"
 Content-Location: text_01_000.txt
 
-$part $section
+$i $section
 
 " #}}}
 
@@ -316,7 +316,7 @@ Content-Type: text/plain;
  name=\"text_01_000.txt\"
 Content-Location: text_01_000.txt
 
-$part $section
+$message
 
 " #}}}
 

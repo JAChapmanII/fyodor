@@ -94,6 +94,8 @@ function parse_message() #{{{
 				;;
 			-*[Ee]*)
 				RETURN_TYPE="EMAIL"
+				print_note "Set return type to EMAIL"
+				;;
 			*)
 				AMOUNT="$(echo $arg | sed 's/-*//g')"
 				print_note "Set amount to $AMOUNT"
@@ -104,7 +106,8 @@ function parse_message() #{{{
 	done
 
 	COMMAND="$(echo $message | cut -f1 -d' ')"
-	ARGUMENTS="$(echo $message | cut -f2-999 -d' ' | sed 's/[ \t]\+\(.*\)[ \t]\+$/\1/')"
+	ARGUMENTS="$(echo $message | cut -f2-999 -d' ' | \
+		sed 's/^[ \t]\+\(.*\)/\1/; s/[ \t]\+$//')"
 
 	print_note "Command is: $COMMAND"
 	print_note "Arguments are: $ARGUMENTS"
@@ -164,11 +167,11 @@ function SMS() #{{{
 # MMS recipients message number
 function MMS() #{{{
 {
-	if [ -z "$1" ]
+	files="$(ls ${attachments})"
+	if [ -z "$1" ] && [ -z "$files" ]
 	then
 		return 1
 	fi
-	files="$(ls ${attachments})"
 
 	# Try to determine where we're sending this sucker {{{
 	number="$(echo $ADDRESS | sed 's/\(.*\)@.*/\1/')"

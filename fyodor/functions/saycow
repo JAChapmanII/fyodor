@@ -1,0 +1,16 @@
+#!/bin/zsh
+#&` [Cc][Oo][Ww]*->saycow
+
+function saycow()
+{
+	cow="$(eval cowsay $@ | sed 's_\\_\\\\_g')"
+	convert -background white -fill black -font Inconsolata-Medium \
+		-pointsize 18 label:"$cow" "cow.png"
+	if [ -f "cow.png" ]
+	then
+		mv "cow.png" ${attachments}
+		MMS
+	else
+		return 1
+	fi
+}

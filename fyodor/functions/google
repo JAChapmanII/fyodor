@@ -1,0 +1,10 @@
+#!/bin/zsh
+#&` [Gg][Oo]*[Gg]*->google
+
+function google()
+{
+	wget -U Mozilla -q -O "google.html" "http://www.google.com/search?q=$1"
+	results="$(cat 'google.html' | lynx --stdin --nolist --dump |
+		sed '1,/Results/d')"
+	reply "$results"
+}

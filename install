@@ -32,6 +32,7 @@ over from old"
 	fi
 done
 
+print_note "Using config file to update msmtprc and offlineimaprc"
 sed -i "s/EMAILNAME/${EMAILNAME}/g" .msmtprc
 sed -i "s/EMAILPASS/${EMAILPASS}/g" .msmtprc
 
@@ -71,10 +72,20 @@ do
 done
 rmdir fyodor_tmp
 
+
 print_message "Changing the ownership on /home/${USERNAME} so \
 ${USERNAME} can read/write them"
 sudo chown -R ${USERNAME}:users /home/${USERNAME}
 
 print_note "New version installed!"
+
+pushd fyodor
+print_note "Reverting changes to msmtprc and offlineimaprc"
+sed -i "s/${EMAILNAME}/EMAILNAME/g" .msmtprc
+sed -i "s/${EMAILPASS}/EMAILPASS/g" .msmtprc
+
+sed -i "s/${EMAILNAME}/EMAILNAME/g" .offlineimaprc
+sed -i "s/${EMAILPASS}/EMAILPASS/g" .offlineimaprc
+popd
 
 popd

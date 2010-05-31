@@ -1,6 +1,5 @@
 #!/bin/sh
-
-. ./functions.sh
+. ./config
 
 require_root
 

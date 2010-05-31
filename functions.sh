@@ -73,20 +73,6 @@ function print_note ()
 	echo "${txtcyn}${timestamp}${txtrst} $*"
 }
 
-# Show newest files
-function newest ()
-{
-    local many=`first-numeric $argv 1`
-    echo *(om[1,$many])
-}
-
-# Show newest directories
-function newdirs ()
-{
-    local many=`first-numeric $argv 1`
-    echo *(/om[1,$many])
-}
-
 # Create a directory for the current day
 function now ()
 {

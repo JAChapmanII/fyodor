@@ -1,3 +1,10 @@
+Fyodor is a program that answers text based questions. It is currently in extreme alhpa, and the
+code base is not stable. It is not recommended to download or even hack fyodor right now.
+
+The git repo is a mess, because I've been (not) learning git this whole time. That's why all the
+work has been done in the master branch.
+
+The code is a mess because I've been using this as a project to learn to shell script.
 
 Building:
 
@@ -8,3 +15,7 @@ security holes.
 
 Run install with root priveleges.
 Login as the new user and run ./fetchmail and ./fyodor
+
+Using:
+
+Text "help" to your fyodor's email address.

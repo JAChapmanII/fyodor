@@ -5,4 +5,7 @@ USERNAME="fyodor"
 
 KEEPDIRS="Mail new process processed"
 
+EMAILNAME="XXXX"
+EMAILPASS="XXXX"
+
 # vim: ft=sh:

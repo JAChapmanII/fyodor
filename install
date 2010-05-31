@@ -31,6 +31,13 @@ over from old"
 		exit 1
 	fi
 done
+
+sed -i "s/EMAILNAME/${EMAILNAME}/g" .msmtprc
+sed -i "s/EMAILPASS/${EMAILPASS}/g" .msmtprc
+
+sed -i "s/EMAILNAME/${EMAILNAME}/g" .offlineimaprc
+sed -i "s/EMAILPASS/${EMAILPASS}/g" .offlineimaprc
+
 popd
 
 print_note "The date is currently: $dt"

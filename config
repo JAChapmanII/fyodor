@@ -1,7 +1,7 @@
 SRCROOT="/home/djef/src/fyodor"
 USERNAME="fyodor"
 
-. ${SRCROOT}/functions.sh
+. ${SRCROOT}/functions
 
 KEEPDIRS="Mail new process processed"
 

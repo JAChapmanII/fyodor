@@ -1,75 +1,74 @@
-#!/bin/zsh
+#!/bin/sh
 
-. ~/djef/functions.zsh
+. ./functions.sh
 
-if [ "$UID" -ne "0" ]
-then
-	print_error "You are not root"
-	exit 1
-fi
+require_root
 
-if [ "`pwd`" != "/home/djef/src/fyodor" ]
-then
-	print_error "Please make sure you're in the right directory,
-or this could get sticky."
-	exit 1
-fi
+pushd ${SRCROOT}
 
 commit="$(git status | grep "(working directory clean)")"
 if [ "x$commit" = "x" ]
 then
 	print_error "There are things needing to be commited in git."
+	popd
 	exit 1
 fi
 
 [ -d fyodor.bak ] || mkdir -p fyodor.bak
 
 dt="`date +'%y.%m.%d.%H.%M.%S.%N'`"
-archive="home_fyodor.bak.$dt.tar.gz"
-set -A dirs \
-	"Mail" "new" "process" "processed"
+archive="home_${USERNAME}.bak.$dt.tar.gz"
 
 pushd fyodor
-for dir in $dirs
+for dir in ${KEEPDIRS}
 do
 	if [ -d "$dir" ]
 	then
-		print_warn "$dir exists in fyodor, but it is something kept \
+		print_error "$dir exists in fyodor, but it is something kept \
 over from old"
-		print_warn "I'm just going to remove it, OK?"
-		rm -r $dir
+		print_error "Please see the config file to fix this"
+		popd
+		popd
+		exit 1
 	fi
 done
 popd
 
 print_note "The date is currently: $dt"
 
-print_message "Tar'ing up /home/fyodor for safe keeping"
+print_message "Tar'ing up /home/${USERNAME} for safe keeping"
 [ -d fyodor.bak ] || mkdir -p fyodor.bak
-sudo tar -cf "fyodor.bak/$archive" /home/fyodor
+sudo tar -cf "fyodor.bak/$archive" /home/${USERNAME}
 if [ ! -f fyodor.bak/$archive ]
 then
 	print_error "Backup failed, exiting"
+	popd
 	exit 1
 fi
 
 mkdir -p fyodor_tmp
-for dir in $dirs
+for dir in ${KEEPDIRS}
 do
 	print_note "Moving $dir to a temporary safe location"
-	mv /home/fyodor/$dir fyodor_tmp
+	mv /home/${USERNAME}/$dir fyodor_tmp
 done
-print_message "Removing everyithng that was in /home/fyodor"
-sudo rm -R /home/fyodor/
+
+print_message "Removing everyithng that was in /home/${USERNAME}"
+sudo rm -R /home/${USERNAME}/
+
 print_message "Pushing fyodor to /home"
 sudo cp -R fyodor /home
-for dir in $dirs
+for dir in ${KEEPDIRS}
 do
 	print_note "Moving $dir back into place"
-	mv fyodor_tmp/$dir /home/fyodor
+	mv fyodor_tmp/$dir /home/${USERNAME}
 done
 rmdir fyodor_tmp
-print_message "Changing the ownership on /home/fyodor so \
-Fyodor can read/write them"
-sudo chown -R fyodor:users /home/fyodor
+
+print_message "Changing the ownership on /home/${USERNAME} so \
+${USERNAME} can read/write them"
+sudo chown -R ${USERNAME}:users /home/${USERNAME}
+
 print_note "New version installed!"
+
+popd

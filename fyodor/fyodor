@@ -4,6 +4,8 @@
 #&` [Ll][Oo][Aa][Dd]*->load
 #&` [Mm][Aa][Pp]*->map
 
+clear
+
 . ${XDG_CONFIG_HOME}/zsh/functions.zsh
 . ~/global
 

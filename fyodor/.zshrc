@@ -46,10 +46,10 @@ setopt extended_glob
 setopt short_loops
 setopt complete_in_word
 setopt interactive_comments
-setopt brace_ccl 
-setopt dvorak 
-setopt hash_list_all 
-setopt beep 
+setopt brace_ccl
+setopt dvorak
+setopt hash_list_all
+setopt beep
 setopt nomatch
 unsetopt notify
 
@@ -101,3 +101,6 @@ do
 		print "$bg[red]$fg[white]Error:$terminfo[sgr0] $f is unavailable."
     fi
 done
+
+tmux
+

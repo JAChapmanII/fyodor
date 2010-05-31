@@ -1,2 +1,4 @@
-#!/bin/zsh
-vim $(find ./ -maxdepth 2 -type f | sed 's_^./__' | grep -v '\.') $(find ./fyodor/functions/ -type f)
+#!/bin/sh
+. ./config
+vim $(find ${SRCROOT} -maxdepth 2 -type f | sed 's_^./__' | grep -v '\.') \
+	$(find ${SRCROOT}/fyodor/functions/ -type f)

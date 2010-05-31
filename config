@@ -1,0 +1,8 @@
+SRCROOT="/home/$(whoami)/src/fyodor"
+USERNAME="fyodor"
+
+. ${SRCROOT}/functions.sh
+
+KEEPDIRS="Mail new process processed"
+
+# vim: ft=sh:

@@ -1,14 +1,32 @@
 #!/bin/zsh
 
-if [ ! -z "$(pgrep offlineimap)" ]
-then
-	echo "Offlineimap is currently running, exiting"
-	exit 1
-fi
-if [ "$(pgrep fetch_mail | wc -l)" -gt 1 ]
+if [ "$(pgrep -u fyodor fetch_mail | wc -l)" -gt 1 ]
 then
 	echo "This script is currently running, exiting"
 	exit 1
+fi
+
+clear
+if [ ! -z "$(pgrep -u fyodor offlineimap)" ]
+then
+	echo "Offlineimap is currently running. Giving it 60 seconds to end."
+	loops="0"
+	while [ "$loops" -le "60" ]
+	do
+		loops="$(($loops + 1))"
+		if [ "$(pgrep -u fyodor offlineimap)" = "" ]
+		then
+			loops="126"
+		fi
+		sleep 0.1
+	done
+	if [ "$loops" -lt "126" ]
+	then
+		print_error "Had to kill offlineimap"
+		kill "$(pgrep -u fyodor offlineimap)"
+	else
+		"Offlineimap finished, continuing"
+	fi
 fi
 
 . ~/global
@@ -33,7 +51,7 @@ do
 	while [ "$loops" -le "$timeout" ]
 	do
 		loops="$(($loops + 1))"
-		if [ "$(pgrep offlineimap)" = "" ]
+		if [ "$(pgrep -u fyodor offlineimap)" = "" ]
 		then
 			loops="$(($timeout + 66))"
 		fi
@@ -42,7 +60,7 @@ do
 	if [ "$loops" -lt "$(($timeout + 66))" ]
 	then
 		print_error "Had to kill offlineimap"
-		kill "$(pgrep offlineimap)"
+		kill "$(pgrep -u fyodor offlineimap)"
 		timeout="$(($timeout + $timeout / 2))"
 		failures="$(($failures + 1))"
 		print_note "Failed $failures time(s), increased timeout to $timeout"

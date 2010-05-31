@@ -1,53 +1,48 @@
-#!/bin/zsh
+#!/bin/sh
+. ./config
 
-. ~/djef/functions.zsh
+require_root
 
-if [ "$UID" -ne "0" ]
-then
-	print_error "You are not root"
-	exit 1
-fi
+pushd ${SRCROOT}
 
-if [ "$(pwd)" != "/home/djef/src/fyodor" ]
-then
-	print_error "You're in the wrong dir, try the right one"
-	exit 1
-fi
-
-[ -d fyodor.bak ] || mkdir -p fyodor.bak
+# Make sure that the backup attempting to be restored exists
+[ -d fyodor.bak ] || mkdir -p fyodor.bak #{{{
 if [ ! -f "fyodor.bak/$1" ]
 then
 	print_error "That backup does not actually exist, lo siento"
+	popd
 	exit 1
-fi
+fi #}}}
 
 dt="`date +'%y.%m.%d.%H.%M.%S.%N'`"
-archive="home_fyodor.bak.$dt.tar.gz"
+archive="home_${USERNAME}.bak.$dt.tar.gz"
 
-print_message "Backing up current /home/fyodor"
-sudo tar -cf "fyodor.bak/$archive" /home/fyodor
+print_message "Backing up current /home/${USERNAME}"
+sudo tar -cf "fyodor.bak/$archive" /home/${USERNAME}
 if [ ! -f fyodor.bak/$archive ]
 then
 	print_error "Backup failed, exiting"
+	popd
 	exit 1
 fi
 
-print_message "Removing everyithng that was in /home/fyodor"
-sudo rm -R /home/fyodor/
+print_message "Removing everyithng that was in /home/${USERNAME}"
+sudo rm -R /home/${USERNAME}/
 
 print_message "Extracting backup"
 pushd fyodor.bak
 sudo tar -xf $1
 
 print_message "Pushing backup to /home"
-sudo cp -R home/fyodor /home
+sudo cp -R home/${USERNAME} /home
 
-print_message "Changing the ownership on /home/fyodor so \
-Fyodor can read/write them"
-sudo chown -R fyodor:users /home/fyodor
+print_message "Changing the ownership on /home/${USERNAME} so \
+${USERNAME} can read/write them"
+sudo chown -R ${USERNAME}:users /home/${USERNAME}
 
 print_message "Removing extracted backup"
 rm -r home
 
 print_note "Succesful"
 
+popd

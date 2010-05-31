@@ -1,0 +1,9 @@
+
+Building:
+
+Create a user named whatever you want that only is only in the "users" group. Set the username
+in config if it is something other than "fyodor"
+
+Run install with root priveleges.
+
+Login as the new user and run ./fetchmail and ./fyodor

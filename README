@@ -8,8 +8,12 @@ The code is a mess because I've been using this as a project to learn to shell s
 
 Building:
 
-Set up the config file. Change the SRCROOT variable to point to the folder holding this file. Change
-the USERNAME variable if you want fyodor to run as a user other than "fyodor"
+Set up the config file. Start with
+	mv config{.example,}
+Then, change the email username and password to be an actual gmail user/pass. I suggest you create
+account just for this. [Especially since GMail could shut it down at any time ;)] Change the SRCROOT
+variable to point to the folder holding this file. Change the USERNAME variable if you want fyodor
+to run as a user other than "fyodor"
 Create a user that is the same name as USERNAME. Put it only in the users group to aviod potential
 security holes.
 

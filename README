@@ -1,9 +1,10 @@
 
 Building:
 
-Create a user named whatever you want that only is only in the "users" group. Set the username
-in config if it is something other than "fyodor"
+Set up the config file. Change the SRCROOT variable to point to the folder holding this file. Change
+the USERNAME variable if you want fyodor to run as a user other than "fyodor"
+Create a user that is the same name as USERNAME. Put it only in the users group to aviod potential
+security holes.
 
 Run install with root priveleges.
-
 Login as the new user and run ./fetchmail and ./fyodor

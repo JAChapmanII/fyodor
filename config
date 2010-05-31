@@ -1,4 +1,4 @@
-SRCROOT="/home/$(whoami)/src/fyodor"
+SRCROOT="/home/djef/src/fyodor"
 USERNAME="fyodor"
 
 . ${SRCROOT}/functions.sh

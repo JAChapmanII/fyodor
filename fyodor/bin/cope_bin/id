@@ -1,9 +1,0 @@
-#!/usr/bin/env perl
-use App::Cope;
-
-sub process {
-  line qr{(\d+)\((\w+)\)} => 'yellow', 'yellow bold';
-}
-
-chomp( my $realpath = `which id` );
-run( \&process, $realpath, @ARGV );

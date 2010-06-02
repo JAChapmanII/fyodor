@@ -12,7 +12,7 @@ localfolders = ~/Mail/GMail
 
 [Repository Gmail-Remote]
 type = Gmail
-remoteuser = EMAILNAME
+remoteuser = EMAILNAME@gmail.com
 remotepass = EMAILPASS
 realdelete = yes
 nametrans = lambda folder: re.sub('.*Spam$', 'spam', re.sub('.*Drafts$', 'drafts', re.sub('.*Sent Mail$', 'sent', re.sub('.*Starred$', 'flagged', re.sub('.*Trash$', 'trash', re.sub('.*All Mail$', 'archive', folder))))))

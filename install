@@ -13,7 +13,7 @@ then
 	exit 1
 fi
 
-[ -d fyodor.bak ] || mkdir -p fyodor.bak
+[ -d "${BACKUP_DIR}" ] || mkdir -p "${BACKUP_DIR}"
 
 dt="`date +'%y.%m.%d.%H.%M.%S.%N'`"
 archive="home_${USERNAME}.bak.$dt.tar.gz"
@@ -56,9 +56,9 @@ popd
 print_note "The date is currently: $dt"
 
 print_message "Tar'ing up /home/${USERNAME} for safe keeping"
-[ -d fyodor.bak ] || mkdir -p fyodor.bak
-sudo tar -cf "fyodor.bak/$archive" /home/${USERNAME}
-if [ ! -f fyodor.bak/$archive ]
+[ -d "${BACKUP_DIR}" ] || mkdir -p "${BACKUP_DIR}"
+sudo tar -cf "${BACKUP_DIR}/$archive" /home/${USERNAME}
+if [ ! -f "${BACKUP_DIR}/$archive" ]
 then
 	print_error "Backup failed, exiting"
 	popd

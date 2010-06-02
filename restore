@@ -3,11 +3,11 @@
 
 require_root
 
-pushd ${SRCROOT}
+pushd "${SRCROOT}"
 
 # Make sure that the backup attempting to be restored exists
-[ -d fyodor.bak ] || mkdir -p fyodor.bak #{{{
-if [ ! -f "fyodor.bak/$1" ]
+[ -d "${BACKUP_DIR}" ] || mkdir -p "${BACKUP_DIR}" #{{{
+if [ ! -f "${BACKUP_DIR}/$1" ]
 then
 	print_error "That backup does not actually exist, lo siento"
 	popd
@@ -18,8 +18,8 @@ dt="`date +'%y.%m.%d.%H.%M.%S.%N'`"
 archive="home_${USERNAME}.bak.$dt.tar.gz"
 
 print_message "Backing up current /home/${USERNAME}"
-sudo tar -cf "fyodor.bak/$archive" /home/${USERNAME}
-if [ ! -f fyodor.bak/$archive ]
+sudo tar -cf "${BACKUP_DIR}/$archive" "/home/${USERNAME}"
+if [ ! -f "${BACKUP_DIR}/$archive" ]
 then
 	print_error "Backup failed, exiting"
 	popd
@@ -30,7 +30,7 @@ print_message "Removing everyithng that was in /home/${USERNAME}"
 sudo rm -R /home/${USERNAME}/
 
 print_message "Extracting backup"
-pushd fyodor.bak
+pushd "${BACKUP_DIR}"
 sudo tar -xf $1
 
 print_message "Pushing backup to /home"

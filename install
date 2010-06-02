@@ -1,107 +1,129 @@
 #!/bin/bash
 . ./config
 
+# Require this sript to be run as root
 require_root
 
-pushd ${SRCROOT}
+# Ensure git repo is clean
+cd "${ROOT_DIR}" #{{{
 
-commit="$(git status | grep "(working directory clean)")"
-if [ "x$commit" = "x" ] && [ "x$1" != "xdirty" ]
+if [ ! -z "${DIRTY}" ]
 then
-	print_error "Git repository is dirty, please fix"
-	popd
-	exit 1
-fi
+	commit="$(git status | grep "(working directory clean)")"
+	if [ "x$commit" = "x" ]
+	then
+		print_error "Git repository is dirty, please fix"
+		exit 1
+	fi
+fi #}}}
+
+# Check to make sure no KEEP_DIRS dirs exist
+cd "${ROOT_DIR}/${PROJECT}" #{{{
+
+for dir in ${KEEP_DIRS}
+do
+	if [ -d "$dir" ]
+	then
+		print_error "$dir exists in fyodor, but it is something kept over from old"
+		print_error "Please see the config file to fix this"
+		exit 1
+	fi
+done #}}}
 
 [ -d "${BACKUP_DIR}" ] || mkdir -p "${BACKUP_DIR}"
 
 dt="`date +'%y.%m.%d.%H.%M.%S.%N'`"
 archive="home_${USERNAME}.bak.$dt.tar.gz"
 
-pushd fyodor
-for dir in ${KEEPDIRS}
+print_note "The date is currently: $dt"
+
+# Update NEEDS_EMAIL files with config info
+print_note "Using config file to update: ${NEEDS_EMAIL}" #{{{
+cd "${ROOT_DIR}/${PROJECT}"
+for file in ${NEEDS_EMAIL}
 do
-	if [ -d "$dir" ]
-	then
-		print_error "$dir exists in fyodor, but it is something kept \
-over from old"
-		print_error "Please see the config file to fix this"
-		popd
-		popd
-		exit 1
-	fi
-done
+	sed -i -e "s/EMAILNAME/${EMAIL_NAME}/g" -e "s/EMAILPASS/${EMAIL_PASS}/g" "$file"
+done #}}}
 
-print_note "Using config file to update msmtprc and offlineimaprc"
-sed -i "s/EMAILNAME/${EMAILNAME}/g" .msmtprc
-sed -i "s/EMAILPASS/${EMAILPASS}/g" .msmtprc
-
-sed -i "s/EMAILNAME/${EMAILNAME}/g" .offlineimaprc
-sed -i "s/EMAILPASS/${EMAILPASS}/g" .offlineimaprc
-
-if [ ! -z "${COPYFILES}" ]
+# Duplicating COPY_FILES in $PROJECT dir
+if [ ! -z "${COPY_FILES}" ] #{{{
 then
-	print_note "Copying over files from COPYFILES"
-	for file in "${COPYFILES}"
+	print_note "Copying over files: ${COPY_FILES}"
+	cd "${ROOT_DIR}/${PROJECT}"
+	for file in "${COPY_FILES}"
 	do
 		if [ -f "~/$file" ]
 		then
-			cp -v "~/$file" ./
+			cp -v "~/$file" "./$file"
 		fi
 	done
-fi
+fi #}}}
 
-popd
+cd "${ROOT_DIR}"
 
-print_note "The date is currently: $dt"
-
-print_message "Tar'ing up /home/${USERNAME} for safe keeping"
-[ -d "${BACKUP_DIR}" ] || mkdir -p "${BACKUP_DIR}"
-sudo tar -cf "${BACKUP_DIR}/$archive" /home/${USERNAME}
-if [ ! -f "${BACKUP_DIR}/$archive" ]
+# Backup current $PROJECT implementation if one exists and temporarily move KEEP_DIRS and clear
+# out /home/$USERNAME if it exists so we can push
+if [ -d "/home/${USERNAME}" ] #{{{
 then
-	print_error "Backup failed, exiting"
-	popd
-	exit 1
-fi
+	print_message "Tar'ing up /home/${USERNAME} for safe keeping"
+	tar -cf "${BACKUP_DIR}/$archive" /home/${USERNAME}
+	if [ ! -f "${BACKUP_DIR}/$archive" ]
+	then
+		print_error "Backup failed, exiting"
+		exit 1
+	fi
 
-mkdir -p fyodor_tmp
-for dir in ${KEEPDIRS}
-do
-	print_note "Moving $dir to a temporary safe location"
-	mv /home/${USERNAME}/$dir fyodor_tmp
-done
+	mkdir -p "tmp.${PROJECT}"
+	for dir in ${KEEP_DIRS}
+	do
+		print_note "Moving $dir to a temporary safe location"
+		mv "/home/${USERNAME}/$dir" "tmp.${PROJECT}"
+	done
 
-print_message "Removing everyithng that was in /home/${USERNAME}"
-sudo rm -R /home/${USERNAME}/
+	print_message "Removing everyithng that was in /home/${USERNAME}"
+	rm -R "/home/${USERNAME}/"
+else
+	print_note "No current /home/${USERNAME} exists"
 
-print_message "Pushing fyodor to /home"
-sudo cp -R fyodor /home
+	mkdir -p "tmp.${PROJECT}"
+	for dir in ${KEEP_DIRS}
+	do
+		print_note "Creating $dir in tmp.${PREJECT}"
+		mkdir "tmp.${PROJECT}/$dir"
+	done
+
+	print_message "Nothing to delete from /home/${USERNAME}"
+fi #}}}
+
+# Push projcect to new home
+print_message "Pushing ${PROJECT} to /home" #{{{
+sudo cp -R "${PROJECT}" "/home"
 for dir in ${KEEPDIRS}
 do
 	print_note "Moving $dir back into place"
-	mv fyodor_tmp/$dir /home/${USERNAME}
+	mv "tmp.${PROJECT}/$dir" "/home/${USERNAME}"
 done
-rmdir fyodor_tmp
+rmdir "tmp.${PROJECT}" #}}}
 
-
-print_message "Changing the ownership on /home/${USERNAME} so \
-${USERNAME} can read/write them"
-sudo chown -R ${USERNAME}:users /home/${USERNAME}
+# Fix file permissins
+print_message "Changing the ownership on /home/${USERNAME} so ${USERNAME} can read/write them" #{{{
+chown -R "${USERNAME}:users" "/home/${USERNAME}" #}}}
 
 print_note "New version installed!"
 
-pushd fyodor
-print_note "Reverting changes to msmtprc and offlineimaprc"
-sed -i "s/${EMAILNAME}/EMAILNAME/g" .msmtprc
-sed -i "s/${EMAILPASS}/EMAILPASS/g" .msmtprc
+# Reverting "sed" changes to NEEDS_EMAIL files [pun intended]
+print_note "Using config file to revert changes to: ${NEEDS_EMAIL}" #{{{
+cd "${ROOT_DIR}/${PROJECT}"
+for file in ${NEEDS_EMAIL}
+do
+	sed -i -e "s/${EMAIL_NAME}/EMAILNAME/g" -e "s/${EMAIL_PASS}/EMAILPASS/g" "$file"
+done #}}}
 
-sed -i "s/${EMAILNAME}/EMAILNAME/g" .offlineimaprc
-sed -i "s/${EMAILPASS}/EMAILPASS/g" .offlineimaprc
-
-if [ ! -z "${COPYFILES}" ]
+# Deleting COPY_FILES files
+if [ ! -z "${COPYFILES}" ] #{{{
 then
 	print_note "Deleting files from COPYFILES"
+	cd "${ROOT_DIR}/${PROJECT}"
 	for file in "${COPYFILES}"
 	do
 		if [ -f "$file" ]
@@ -109,8 +131,7 @@ then
 			rm -v "$file"
 		fi
 	done
-fi
+fi #}}}
 
-popd
+print_note "All done."
 
-popd

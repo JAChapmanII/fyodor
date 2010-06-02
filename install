@@ -6,9 +6,9 @@ require_root
 pushd ${SRCROOT}
 
 commit="$(git status | grep "(working directory clean)")"
-if [ "x$commit" = "x" ]
+if [ "x$commit" = "x" ] && [ "x$1" != "xdirty" ]
 then
-	print_error "There are things needing to be commited in git."
+	print_error "Git repository is dirty, please fix"
 	popd
 	exit 1
 fi
@@ -38,6 +38,18 @@ sed -i "s/EMAILPASS/${EMAILPASS}/g" .msmtprc
 
 sed -i "s/EMAILNAME/${EMAILNAME}/g" .offlineimaprc
 sed -i "s/EMAILPASS/${EMAILPASS}/g" .offlineimaprc
+
+if [ ! -z "${COPYFILES}" ]
+then
+	print_note "Copying over files from COPYFILES"
+	for file in "${COPYFILES}"
+	do
+		if [ -f "~/$file" ]
+		then
+			cp -v "~/$file" ./
+		fi
+	done
+fi
 
 popd
 
@@ -86,6 +98,19 @@ sed -i "s/${EMAILPASS}/EMAILPASS/g" .msmtprc
 
 sed -i "s/${EMAILNAME}/EMAILNAME/g" .offlineimaprc
 sed -i "s/${EMAILPASS}/EMAILPASS/g" .offlineimaprc
+
+if [ ! -z "${COPYFILES}" ]
+then
+	print_note "Deleting files from COPYFILES"
+	for file in "${COPYFILES}"
+	do
+		if [ -f "$file" ]
+		then
+			rm -v "$file"
+		fi
+	done
+fi
+
 popd
 
 popd

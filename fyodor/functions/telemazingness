@@ -1,8 +1,8 @@
 #!/bin/sh
 #&` [Pp][Nn][Mm]->pnm
 
-phoneDir="phoneDir"
-[ -d "$phoneDir" ] || mkdir -p $phoneDir
+PHONE_DIR="~/${DATA_DIR}/phone"
+[ -d "${PHONE_DIR}" ] || mkdir -p "${PHONE_DIR}"
 
 function pnm() # &`
 {
@@ -10,7 +10,7 @@ function pnm() # &`
 	then
 		return 1
 	fi
-	pushd $phoneDir
+	pushd "${PHONE_DIR}"
 	wget -q -O "${1}" -U mozilla "http://www.google.com/search?hl=en&source=hp&q=${1}&btnG=Google+Search"
 	reply="$(cat "${1}" | lynx --stdin --dump | sed -n  '/([0-9][0-9][0-9]) [0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]/ s/- \[.*//p' | sed 's/[^\.]*\.\([^\.]*\)\.[^ ]*/\1/')"
 	popd

@@ -2,8 +2,8 @@
 #&` [Ww][Ii][Kk][Ii]*->wikipedia
 #&` [Rr]*[Ww][Ii][Kk][Ii]*->rewikipedia
 
-wikipedia_dir="wikipedia"
-[ -d "$wikipedia_dir" ] || mkdir -p "$wikipedia_dir"
+WIKI_DIR="~/${DATA_DIR}/wiki"
+[ -d "${WIKI_DIR}" ] || mkdir -p "${WIKI_DIR}"
 
 # wikipedia
 function wikipedia() #{{{
@@ -12,7 +12,7 @@ function wikipedia() #{{{
 	then
 		return 1
 	fi
-	pushd $wikipedia_dir
+	pushd "${WIKI_DIR}"
 	if [ ! -f "$1" ]
 	then
 		WIKI="http://en.wikipedia.org/wiki"
@@ -53,7 +53,7 @@ function rewikipedia() #{{{
 	then
 		return 1
 	fi
-	pushd $wikipedia_dir
+	pushd "${WIKI_DIR}"
 	if [ -f "$1" ]
 	then
 		rm "$1"

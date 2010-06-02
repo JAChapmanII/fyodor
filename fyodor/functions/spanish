@@ -1,11 +1,11 @@
 #!/bin/sh
 
-spanish_dir="spanish"
-[ -d $spanish_dir ] || mkdir -p $spanish_dir
+ES_DIR="~/${DATA_DIR}/spanish"
+[ -d "${ES_DIR}" ] || mkdir -p "${ES_DIR}"
 
 function engspa() # &`
 {
-	pushd $spanish_dir
+	pushd "${ES_DIR}"
 	wget -q -U Mozilla -O "$1" "http://www.wordreference.com/es/translation.asp?tranword=$1"
 	reply="$(cat "$1" | lynx --stdin --dump | sed "1,/$1/d" | grep -v '\]')"
 	popd
@@ -13,7 +13,7 @@ function engspa() # &`
 
 function spaeng() # &`
 {
-	pushd $spanish_dir
+	pushd "${ES_DIR}"
 	wget -q -U Mozilla -O "$1" "http://www.wordreference.com/es/en/translation.asp?spen=$1"
 	reply="$(cat "$1" | lynx --stdin --dump | sed "1,/$1/d" | grep -v '\]')"
 	popd

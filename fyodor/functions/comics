@@ -1,13 +1,13 @@
 #!/bin/zsh
 #&` [Xx][Kk][Cc][Dd]->xkcd
 
-comic_dir="${prefix}/comics"
-[ -d "$comic_dir" ] || mkdir -p $comic_dir
+COMIC_DIR="~/${DATA_DIR}/comics"
+[ -d "${COMIC_DIR}" ] || mkdir -p "${COMIC_DIR}"
 
 # xkcd
 function xkcd() #{{{
 {
-	pushd $comic_dir
+	pushd "${COMIC_DIR}"
 	wget -q -O "xkcd.main" "http://www.xkcd.com"
 	MAX="$(sed -n 's_.*Permanent link to this comic: http://xkcd.com/\([0-9]\+\)/.*_\1_p' xkcd.main)"
 	if [ -z "$MAX" ]

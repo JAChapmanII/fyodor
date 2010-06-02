@@ -3,6 +3,7 @@
 
 function saycow()
 {
+	pushd "${DATA_DIR}"
 	cow="$(eval cowsay $@ | sed 's_\\_\\\\_g')"
 	convert -background white -fill black -font Inconsolata-Medium \
 		-pointsize 18 label:"$cow" "cow.png"
@@ -10,7 +11,9 @@ function saycow()
 	then
 		mv "cow.png" ${attachments}
 		MMS
+		popd
 	else
+		popd
 		return 1
 	fi
 }

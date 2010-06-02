@@ -3,7 +3,9 @@
 
 function www()
 {
+	pushd "${DATA_DIR}"
 	wget -U Mozilla -q -O "www.html" "$1"
 	results="$(cat 'google.html' | lynx --stdin --nolist --dump)"
 	reply "$results"
+	popd
 }

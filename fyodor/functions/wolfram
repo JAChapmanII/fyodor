@@ -3,7 +3,9 @@
 
 function wa()
 {
+	pushd "${DATA_DIR}"
 	wget -U Mozilla -q -O "google.html" "http://www.wolframalpha.com/input/?i=$*"
 	results="$(cat 'google.html' | lynx --stdin --nolist --dump |)"
 	reply "$results"
+	popd
 }

@@ -2,6 +2,11 @@
 
 . ~/functions.sh
 
+pushd ~
+
+DATA_DIR="data"
+[ -d "${DATA_DIR}" ] || mkdir -p "${DATA_DIR}"
+
 home="/home/fyodor"
 prefix="$home"
 maildir="${prefix}/Mail"

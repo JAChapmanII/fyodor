@@ -2,13 +2,13 @@
 #&` [Dd][Ee][Ff]*->define
 #&` [Rr]*[Dd][Ee][Ff]*->redefine
 
-definition_dir="definitions"
-[ -d "$definition_dir" ] || mkdir -p "$definition_dir"
+DEF_DIR="~/${DATA_DIR}/defs"
+[ -d "${DEF_DIR}" ] || mkdir -p "${DEF_DIR}"
 
 # define -- defines a word/words using google
 function define() #{{{
 {
-	pushd $definition_dir
+	pushd "${DEF_DIR}"
 	GOOGWORD="http://www.google.com/search?q=define: "
 	for word in $@
 	do
@@ -33,7 +33,7 @@ function define() #{{{
 
 function redefine() #{{{
 {
-	pushd $definition_dir
+	pushd "${DEF_DIR}"
 	for arg in $@
 	do
 		if [ -f "$arg" ]

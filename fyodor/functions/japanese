@@ -2,8 +2,8 @@
 #&` [Ee][Nn][Gg]*[Jj][Aa][Pp]*->engjap
 #&` [Jj][Aa][Pp]*[Ee][Nn][Gg]*->japeng
 
-japanese_dir="japanese"
-[ -d "$japanese_dir" ] || mkdir -p $japanese_dir
+JAP_DIR="~/${DATA_DIR}/japanese"
+[ -d "${JAP_DIR}" ] || mkdir -p "${JAP_DIR}"
 
 function translate_japanese()
 {
@@ -42,7 +42,7 @@ function translate_japanese()
 		JAP="$1"
 	fi
 
-	pushd $japanese_dir
+	pushd "${JAP_DIR}"
 	if [ ! -f "$1" ]
 	then
 		JISHO_JAP="http://jisho.org/words?jap="

@@ -23,3 +23,8 @@ Login as the new user and run ./fetchmail and ./fyodor
 Using:
 
 Text "help" to your fyodor's email address.
+
+Dependencies:
+
+Whoo, boy, let's see... bash, zsh, sed, offlineimap, tar, push/popd (separate?), msmtp, pgrep,
+	grep, tr, base64, lynx, links (TODO), wget, egrep, convert, cowsay, and core utils

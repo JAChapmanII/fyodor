@@ -1,11 +1,13 @@
-SRCROOT="/home/djef/src/fyodor"
-USERNAME="fyodor"
+SRCROOT="/home/djef/src/fyodor"	# location of this file and the fyodor dir
+USERNAME="fyodor"				# Name of user to install ass
 
 . ${SRCROOT}/functions
 
-KEEPDIRS="Mail new process processed"
+COPYFILES=""	# List of files to be copied from ~/ into fyodor's home
 
-EMAILNAME="XXXX"
-EMAILPASS="XXXX"
+KEEPDIRS="Mail new process processed" # Dirs to save from last fyodor
+
+EMAILNAME="XXXX"	# Email address (e.x.: fyodorturing) "@gmail.com" is appended
+EMAILPASS="XXXX"	# Email's password
 
 # vim: ft=sh:

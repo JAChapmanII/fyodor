@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/bin/sh
 
 spanish_dir="spanish"
 [ -d $spanish_dir ] || mkdir -p $spanish_dir

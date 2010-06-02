@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/bin/sh
 #&` [Cc][Oo][Ww]*->saycow
 
 function saycow()

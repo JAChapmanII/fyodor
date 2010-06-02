@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/bin/sh
 #&` [Pp][Nn][Mm]->pnm
 
 phoneDir="phoneDir"

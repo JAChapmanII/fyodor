@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-. $XDG_CONFIG_HOME/zsh/functions.zsh
+. ~/functions.sh
 
 home="/home/fyodor"
 prefix="$home"

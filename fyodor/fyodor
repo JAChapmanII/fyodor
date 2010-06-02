@@ -6,7 +6,6 @@
 
 clear
 
-. ${XDG_CONFIG_HOME}/zsh/functions.zsh
 . ~/global
 
 VERBOSE="false"

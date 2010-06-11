@@ -44,8 +44,6 @@ do
 	fi
 done #}}}
 
-[ -d "${BACKUP_DIR}" ] || mkdir -p "${BACKUP_DIR}"
-
 dt="`date +'%y.%m.%d.%H.%M.%S.%N'`"
 archive="home_${USERNAME}.bak.$dt.tar.gz"
 
@@ -137,15 +135,16 @@ do
 done #}}}
 
 # Deleting COPY_FILES files
-if [ ! -z "${COPYFILES}" ] #{{{
+if [ ! -z "${COPY_FILES}" ] #{{{
 then
 	print_note "Deleting files from COPYFILES"
 	cd "${ROOT_DIR}/${PROJECT}"
-	for file in "${COPYFILES}"
+	for file in "${COPY_FILES}"
 	do
-		if [ -f "$(basename $file)" ]
+		bfile="$(basename $file)"
+		if [ -f "$bfile" ]
 		then
-			rm -v "$(basename $file)"
+			rm -v "$bfile"
 		fi
 	done
 fi #}}}

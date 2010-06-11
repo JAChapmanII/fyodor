@@ -144,7 +144,7 @@ then
 		bfile="$(basename $file)"
 		if [ -f "$bfile" ]
 		then
-			rm -v "$bfile"
+			rm "$bfile"
 		fi
 	done
 fi #}}}

@@ -31,12 +31,14 @@ fi
 
 . ~/global
 logfile="sync.log"
+errorfile="error.log"
 tmp="fetch${tmpextension}"
 
 [ -d $maildir ] || mkdir -p $maildir
 [ -d $maildir/$cpto ] || mkdir -p $maildir/$cpto
 :>> $maildir/$logfile
 :> $maildir/$tmp
+:> $maildir/$errorfile
 
 pushd $maildir
 

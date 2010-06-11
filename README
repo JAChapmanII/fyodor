@@ -13,13 +13,15 @@ Set up the config file. Start with
 Then, change the email username and password to be an actual gmail user/pass. I suggest you create
 account just for this. [Especially since GMail could shut it down at any time ;)] Change the SRCROOT
 variable to point to the folder holding this file. Change the USERNAME variable if you want fyodor
-to run as a user other than "fyodor". Read the comments for furthur instructions.
-Create a user that is the same name as USERNAME. Put it only in the users group to aviod potential
-security holes. Make sure it's default shell is either bash unless you want to create a .${SHELL}rc
+to run as a user other than "fyodor". Read the comments for further instructions.
+Create a user that is the same name as USERNAME. Put it only in the users group to avoid potential
+security holes.
+	useradd -g users ${USERNAME} # as root
+Make sure it's default shell is either bash unless you want to create a .${SHELL}rc
 for it. One way around this is to set it to use your shell, and then add your config file to the
 COPYFILES variable in config.
 
-Run install with root priveleges.
+Run install with root privileges.
 Login as the new user and run ./fetchmail and ./fyodor
 
 Using:
@@ -30,3 +32,5 @@ Dependencies:
 
 Whoo, boy, let's see... bash, zsh, sed, offlineimap, tar, push/popd (separate?), msmtp, pgrep,
 	grep, tr, base64, lynx, links (TODO), wget, egrep, convert, cowsay, and core utils, sudo
+
+# vim: textwidth=100: fo+=tc:

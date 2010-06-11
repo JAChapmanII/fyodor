@@ -1,13 +1,19 @@
-SRCROOT="/home/djef/src/fyodor"	# location of this file and the fyodor dir
-USERNAME="fyodor"				# Name of user to install ass
+ROOT_DIR="/home/$(whoami)/src/sh/fyodor"	# location of this file and the fyodor dir
+PROJECT="fyodor"							# name of src dir in ${SRCROOT} fyodor is what you pull
+USERNAME="fyodor"							# Name of user to install as
 
-. ${SRCROOT}/functions
+BACKUP_DIR="backup"	# dir to store backups in
 
-COPYFILES=""	# List of files to be copied from ~/ into fyodor's home
+. ${ROOT_DIR}/functions
 
-KEEPDIRS="Mail new process processed" # Dirs to save from last fyodor
+KEEP_DIRS="Mail new process processed" # Dirs to save from last fyodor
+COPY_FILES=""	# List of files to be copied from ~/ into ${USERNAMES}'s home
 
 EMAILNAME="XXXX"	# Email address (e.x.: fyodorturing) "@gmail.com" is appended
 EMAILPASS="XXXX"	# Email's password
+
+NEEDS_EMAIL=".msmtprc .offlineimaprc"	# files that need to have the email user/pass put in them
+										# install will look for EMAILNAME and EMAILPASS in these
+										# files and sed them to the values of the variables above
 
 # vim: ft=sh:

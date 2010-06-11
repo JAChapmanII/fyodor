@@ -13,7 +13,7 @@ require_root
 # Ensure git repo is clean
 cd "${ROOT_DIR}" #{{{
 
-if [ ! -z "${DIRTY}" ]
+if [ -z "${DIRTY}" ]
 then
 	commit="$(git status | grep "(working directory clean)")"
 	if [ "x$commit" = "x" ]
@@ -71,7 +71,7 @@ then
 	do
 		if [ -f "$file" ]
 		then
-			cp -v "$file" "./"
+			cp "$file" "./"
 		fi
 	done
 fi #}}}
@@ -143,9 +143,9 @@ then
 	cd "${ROOT_DIR}/${PROJECT}"
 	for file in "${COPYFILES}"
 	do
-		if [ -f "$file" ]
+		if [ -f "$(basename $file)" ]
 		then
-			rm -v "$file"
+			rm -v "$(basename $file)"
 		fi
 	done
 fi #}}}

@@ -45,6 +45,9 @@ do
 	sed -i -e "s/EMAILNAME/${EMAIL_NAME}/g" -e "s/EMAILPASS/${EMAIL_PASS}/g" "$file"
 done #}}}
 
+# Make sure .msmtprc has the proper permissions
+chmod 0600 "${ROOT_DIR}/${PROJECT}/.msmtprc"
+
 # Duplicating COPY_FILES in $PROJECT dir
 if [ ! -z "${COPY_FILES}" ] #{{{
 then

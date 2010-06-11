@@ -3,7 +3,7 @@ alias v="vim"
 alias vi="vim"
 alias df="cope df -h"
 
-. ~/function.sh
+. ~/functions.sh
 
 cd ~
 tmux

@@ -38,7 +38,7 @@ for dir in ${KEEP_DIRS}
 do
 	if [ -d "$dir" ]
 	then
-		print_error "$dir exists in fyodor, but it is something kept over from old"
+		print_error "$dir exists in ${PROJECT}, but it is something kept over from old"
 		print_error "Please see the config file to fix this"
 		exit 1
 	fi
@@ -91,13 +91,21 @@ then
 	mkdir -p "tmp.${PROJECT}"
 	for dir in ${KEEP_DIRS}
 	do
-		print_note "Moving $dir to a temporary safe location"
-		mv "/home/${USERNAME}/$dir" "tmp.${PROJECT}"
+		if [ -d "/home/${USERNAME}/$dir" ]
+		then
+			print_note "Moving $dir to a temporary safe location"
+			mv "/home/${USERNAME}/$dir" "tmp.${PROJECT}"
+		else
+			print_note "$dir does not exist in old, creating"
+			mkdir "tmp.${PROJECT}/$dir"
+		fi
 	done
 
 	print_message "Removing everyithng that was in /home/${USERNAME}"
 	rm -R "/home/${USERNAME}/"
+	#}}}
 else
+	#{{{
 	print_note "No current /home/${USERNAME} exists"
 
 	mkdir -p "tmp.${PROJECT}"
@@ -113,6 +121,7 @@ fi #}}}
 # Push projcect to new home
 print_message "Pushing ${PROJECT} to /home" #{{{
 sudo cp -R "${PROJECT}" "/home"
+sudo mv "/home/${PROJECT}" "/home/${USERNAME}"
 for dir in ${KEEP_DIRS}
 do
 	print_note "Moving $dir back into place"
@@ -137,7 +146,7 @@ done #}}}
 # Deleting COPY_FILES files
 if [ ! -z "${COPY_FILES}" ] #{{{
 then
-	print_note "Deleting files from COPYFILES"
+	print_note "Deleting files: ${COPY_FILES}"
 	cd "${ROOT_DIR}/${PROJECT}"
 	for file in "${COPY_FILES}"
 	do

@@ -23,7 +23,7 @@ tmpextension=".tmp"
 tendashes="----------"
 fortydashes="${tendashes}${tendashes}${tendashes}${tendashes}"
 eightydashes="${fortydashes}${fortydashes}"
-savelines="1048576"
+savelines="1024"
 
 pushd $home
 [ -d $maildir ] 		|| mkdir -p $maildir

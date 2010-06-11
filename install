@@ -69,9 +69,9 @@ then
 	cd "${ROOT_DIR}/${PROJECT}"
 	for file in "${COPY_FILES}"
 	do
-		if [ -f "~/$file" ]
+		if [ -f "$file" ]
 		then
-			cp -v "~/$file" "./$file"
+			cp -v "$file" "./"
 		fi
 	done
 fi #}}}

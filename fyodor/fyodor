@@ -466,24 +466,26 @@ function load() #{{{
 		done
 	fi
 
-	:> exec_message
-	echo "#!/bin/zsh" >> exec_message
-	echo "function exec_message()" >> exec_message
-	echo "{" >> exec_message
-	echo "	VALID=\"true\"" >> exec_message
-	echo "	case \$COMMAND in" >> exec_message
+	exec_message="$(mktemp)"
+	:> ${exec_message}
+	echo "#!/bin/zsh" >> ${exec_message}
+	echo "function exec_message()" >> ${exec_message}
+	echo "{" >> ${exec_message}
+	echo "	VALID=\"true\"" >> ${exec_message}
+	echo "	case \$COMMAND in" >> ${exec_message}
 	for i in {1..${#FUNCTION_FROM[*]}}
 	do
-		echo "		${FUNCTION_FROM[$i]})" >> exec_message
-		echo "			${FUNCTION_TO[$i]} \$ARGUMENTS" >> exec_message
-		echo "			;;" >> exec_message
+		echo "		${FUNCTION_FROM[$i]})" >> ${exec_message}
+		echo "			${FUNCTION_TO[$i]} \$ARGUMENTS" >> ${exec_message}
+		echo "			;;" >> ${exec_message}
 	done
-	echo "		*)" >> exec_message
-	echo "			VALID=\"false\"" >> exec_message
-	echo "			;;" >> exec_message
-	echo "	esac" >> exec_message
-	echo "}" >> exec_message
-	. ./exec_message
+	echo "		*)" >> ${exec_message}
+	echo "			VALID=\"false\"" >> ${exec_message}
+	echo "			;;" >> ${exec_message}
+	echo "	esac" >> ${exec_message}
+	echo "}" >> ${exec_message}
+	. ${exec_message}
+	rm ${exec_message}
 	print_warn "Now Loaded: ${FUNCTION_FROM[*]}"
 } #}}}
 

@@ -1,0 +1,9 @@
+fix non undoing of password/user sed'ing in files on crash during install
+on change back at end do something with sed and passwords with / [ ] etc in them
+on new install Mail/GMail/INBOX/new needs made
+	Mail/home/fyodor/Mail/GMail/INBOX is made?
+Maildir creatin is fscked up
+Ensure password and username are put in there properly, it causes major problems
+otherwise
+Check for offlineimap/msmtp
+Check for any dependencies instead of a bunch of fail

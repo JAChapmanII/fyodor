@@ -1,36 +1,88 @@
-Fyodor is a program that answers text based questions. It is currently in extreme alhpa, and the
-code base is not stable. It is not recommended to download or even hack fyodor right now.
+Fyodor is a program that answers text based questions. It is currently in
+extreme alhpa, and the code base is not stable. It is not recommended to
+download or even hack fyodor right now.
 
-The git repo is a mess, because I've been (not) learning git this whole time. That's why all the
-work has been done in the master branch.
+The git repo is a mess, because I've been (not) learning git this whole time.
+That's why all the work has been done in the master branch.
 
-The code is a mess because I've been using this as a project to learn to shell script.
+The code is a mess because I've been using this as a project to learn to shell
+script. [And because after long absences I try to re-make sense of it all and
+start adding in a bunch of more stuff]
 
 Building:
 
-Set up the config file. Start with
-	mv config{.example,}
-Then, change the email username and password to be an actual gmail user/pass. I suggest you create
-account just for this. [Especially since GMail could shut it down at any time ;)] Change the SRCROOT
-variable to point to the folder holding this file. Change the USERNAME variable if you want fyodor
-to run as a user other than "fyodor". Read the comments for further instructions.
-Create a user that is the same name as USERNAME. Put it only in the users group to avoid potential
-security holes.
-	useradd -g users ${USERNAME} # as root
-Make sure it's default shell is either bash unless you want to create a .${SHELL}rc
-for it. One way around this is to set it to use your shell, and then add your config file to the
-COPYFILES variable in config.
+Set up the config file. Start with mv config{.example,}
+Then, change the email username and password to be an actual gmail user/pass.
+	I suggest you create account just for this.
+	[Especially since GMail could shut it down at any time ;)]
+Change the ROOT_DIR variable to point to the folder holding this file.
+	This is important, the $(whoami) code fails for sure, unless you do
+	everything as root!
+Change the USERNAME variable if you want fyodor to run as a user other than
+the default, "fyodor".
+	Do NOT use your own username for this, it will completely crash everything ;)
+Read the comments for further instructions.
+
+Create a user that is the same name as USERNAME.
+	Put it only in the users group to avoid potential security holes.
+	useradd -g users ${USERNAME} # as root should do it
+You may want to either create a .${SHELL}rc and put it in the fyodor folder to
+be copied over, or tell it to use yours by adding it to the COPY_FILES array in
+the config
+Something else that may save you some headache is to use the /etc/limits.conf
+file to limit the number of processes fyoodor may use. I'm not sure if it's bad
+practice to touch it, so I'm not going to for you.
 
 Run install with root privileges.
+	sudo ./install
+
+	Yes, I barely trust this damn thing even not to fsck my system. Please,
+	inspect the code and prepare for a potential dd if=/dev/zero of=/dev/sda . I
+	will try to get this a bit more OK in the future, hopefully through the use
+	of at least some daemonization and a proper installation. It is slated for
+	ASAP
+
 Login as the new user and run ./fetchmail and ./fyodor
+	[Both will sit there and use up a terminal, so I recommend a terminal
+	multiplexer such as tmux. Most of the output won't be what you want anyway]
+
+If there are any problems (I'm sure there will be, don't worry) try to figure
+them out :p
+	If you can, it'd be a great help to me if you could email me either your
+	problem/solution or even a patch.
+	If you can't, then email me or open a bug on github or something. Send me as
+	much output from stuff as you can. I can't remember if there are any verbose
+	switches or not, but try some combinations of things that you think might
+	make output verbose :)
+
 
 Using:
 
 Text "help" to your fyodor's email address.
+Email "help" to your fyodor's email address.
+And, coming soon: run fyodor from any terminal!
 
 Dependencies:
 
-Whoo, boy, let's see... bash, zsh, sed, offlineimap, tar, push/popd (separate?), msmtp, pgrep,
-	grep, tr, base64, lynx, links (TODO), wget, egrep, convert, cowsay, and core utils, sudo
+Whoo, boy, let's see...
+	bash, zsh [yes, I know...]
+	sed
+	offlineimap
+	tar
+	push/popd (separate?)
+	msmtp
+	pgrep
+	grep
+	tr
+	base64
+	lynx, links (TODO)
+	wget
+	egrep
+	convert
+	cowsay
+	core utils
+	sudo
+A major todo is to shorten this up, reuse things that can be reused for multiple
+dependencies, and modularize it so that you know you only need cowsay for the
+cow function of fyodor.
 
-# vim: textwidth=100: fo+=tc:

@@ -7,3 +7,8 @@ Ensure password and username are put in there properly, it causes major problems
 otherwise
 Check for offlineimap/msmtp
 Check for any dependencies instead of a bunch of fail
+
+Handle back log of requests more sanely than sending out 70 SMS/MMS messages in
+2 minutes, maybe an exponential delay when there is a queue, one for each
+recipient or something like that. Also, maybe we should report fails, but only
+in the event that 90 messages aren't already queued to that person ;)

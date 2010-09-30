@@ -101,7 +101,7 @@ then
 		fi
 	done
 
-	print_message "Removing everyithng that was in /home/${USERNAME}"
+	print_message "Removing everything that was in /home/${USERNAME}"
 	rm -R "/home/${USERNAME}/"
 	#}}}
 else

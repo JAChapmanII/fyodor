@@ -76,6 +76,9 @@ fi #}}}
 
 cd "${ROOT_DIR}"
 
+# Ensure backup directory exists
+mkdir "${BACKUP_DIR}"
+
 # Backup current $PROJECT implementation if one exists and temporarily move KEEP_DIRS and clear
 # out /home/$USERNAME if it exists so we can push
 if [ -d "/home/${USERNAME}" ] #{{{

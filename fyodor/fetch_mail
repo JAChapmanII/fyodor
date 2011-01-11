@@ -1,10 +1,21 @@
 #!/bin/zsh
 
-if [ "$(pgrep -u fyodor fetch_mail | wc -l)" -gt 1 ]
-then
-	echo "This script is currently running, exiting"
-	exit 1
+PID_FILE="fetch_mail.pid"
+
+if [ -f ${PID_FILE} ]; then
+	PID="$(cat ${PID_FILE})"
+	if ps -p ${PID} &> /dev/null; then
+		echo "This script appears to be running already."
+		echo "In the unlikely event that another process has the same PID as the"
+		echo "last instance of fetch_mail, rm ${PID_FILE}"
+		exit 1
+	else
+		echo "A PID file exists from the last run of fetch_mail."
+		echo "This usually means that fetch_mail aborted previously."
+		echo "Fixing the PID file and continuing"
+	fi
 fi
+echo $$ > ${PID_FILE}
 
 clear
 if [ ! -z "$(pgrep -u fyodor offlineimap)" ]
@@ -105,4 +116,5 @@ do
 done
 popd
 
+rm ${PID_FILE}
 exit 0

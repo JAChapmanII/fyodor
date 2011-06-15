@@ -9,11 +9,4 @@ BACKUP_DIR="backup"	# dir to store backups in
 KEEP_DIRS="Mail new process processed" # Dirs to save from last fyodor
 COPY_FILES=""	# List of files to be copied from ~/ into ${USERNAMES}'s home
 
-EMAIL_NAME="XXXX"	# Email address (e.x.: fyodorturing) "@gmail.com" is appended
-EMAIL_PASS="XXXX"	# Email's password
-
-NEEDS_EMAIL=".msmtprc .offlineimaprc"	# files that need to have the email user/pass put in them
-										# install will look for EMAILNAME and EMAILPASS in these
-										# files and sed them to the values of the variables above
-
 # vim: ft=sh:

@@ -8,7 +8,7 @@ JAP_DIR="~/${DATA_DIR}/japanese"
 function translate_japanese()
 {
 	if [[ -z "$(which convert 2>/dev/null)" ]]; then
-		reply "Host system does not have cowsay installed. Bug them."
+		reply "Host system does not have imagemagick. Bug them."
 		return
 	fi
 

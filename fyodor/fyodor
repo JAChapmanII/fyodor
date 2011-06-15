@@ -58,14 +58,12 @@ function parse_message() #{{{
 
 	BOUNDARY=""
 	BLINE="$(echo $message | grep -A1 "Content-Type:" | grep 'boundary="')"
-	if [ ! -z "$BLINE" ]
-	then
+	if [[ -n "$BLINE" ]]; then
 		eval "$(echo $BLINE | sed 's/boundary/BOUNDARY/')"
 		message="$(echo $message | sed '1,/^$/d')"
 	fi
-	message="$(echo $message | sed '1,/^$/ d')"
-	if [ ! -z "$BLINE" ]
-	then
+	message="$(cat $parsebox/$1 | sed '1,/^$/ d')"
+	if [[ -n "$BLINE" ]]; then
 		message="$(echo $message | sed "/${BOUNDARY}/,$ d/")"
 	fi
 	message="$(echo $message |

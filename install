@@ -1,8 +1,8 @@
 #!/bin/bash
 # Make sure there is an existant config file
-if [ ! -f "./config" ] #{{{
-then
-	echo "Please make sure you create a config based on config.example. See the README."
+if [[ ! -f "config" ]]; then #{{{
+	echo "Please make sure you create a config based on config.example."
+	echo "See the README if you are confused or have questions."
 	exit 1
 fi #}}}
 . ./config
@@ -13,68 +13,51 @@ require_root
 # Ensure git repo is clean
 cd "${ROOT_DIR}" #{{{
 
-if [ -z "${DIRTY}" ]
-then
+if [[ -z "${DIRTY}" ]]; then
 	commit="$(git status | grep "(working directory clean)")"
-	if [ "x$commit" = "x" ]
-	then
+	if [[ -z "$commit" ]]; then
 		print_error "Git repository is dirty, please fix"
 		exit 1
 	fi
 fi #}}}
 
 # Make sure the ${USERNAME} user exists
-if [ -z "$(cat /etc/passwd | grep ${USERNAME})" ] #{{{
-then
-	print_error "${USERNAME} does not exist"
-	print_note "See the README for an example command to create ${USERNAME}"
+if [[ -z "$(grep "${USERNAME}" /etc/passwd)" ]]; then #{{{
+	print_error "User \"${USERNAME}\" does not exist on system."
+	print_note "See the README for an example command to create ${USERNAME}."
 	exit 1
 fi #}}}
 
 # Check to make sure no KEEP_DIRS dirs exist
 cd "${ROOT_DIR}/${PROJECT}" #{{{
 
-for dir in ${KEEP_DIRS}
-do
-	if [ -d "$dir" ]
-	then
+for dir in ${KEEP_DIRS}; do
+	if [[ -d "$dir" ]]; then
 		print_error "$dir exists in ${PROJECT}, but it is something kept over from old"
 		print_error "Please see the config file to fix this"
 		exit 1
 	fi
 done #}}}
 
-dt="`date +'%y.%m.%d.%H.%M.%S.%N'`"
+dt="$(date +'%y.%m.%d.%H.%M.%S.%N')"
 archive="home_${USERNAME}.bak.$dt.tar.gz"
 
 print_note "The date is currently: $dt"
 
-# Update NEEDS_EMAIL files with config info
-print_note "Using config file to update: ${NEEDS_EMAIL}" #{{{
-cd "${ROOT_DIR}/${PROJECT}"
-for file in ${NEEDS_EMAIL}
-do
-	sed -i -e "s/EMAILNAME/${EMAIL_NAME}/g" -e "s/EMAILPASS/${EMAIL_PASS}/g" "$file"
-done #}}}
-
-# Make sure .msmtprc has the proper permissions
-chmod 0600 "${ROOT_DIR}/${PROJECT}/.msmtprc"
-
 # Duplicating COPY_FILES in $PROJECT dir
-if [ ! -z "${COPY_FILES}" ] #{{{
-then
+if [[ -n "${COPY_FILES}" ]]; then #{{{
 	print_note "Copying over files: ${COPY_FILES}"
 	cd "${ROOT_DIR}/${PROJECT}"
-	for file in "${COPY_FILES}"
-	do
-		if [ -f "$file" ]
-		then
+	for file in "${COPY_FILES}"; do
+		if [[ -f "$file" ]]; then
 			cp "$file" "./"
 		fi
 	done
 fi #}}}
 
 cd "${ROOT_DIR}"
+
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 # Ensure backup directory exists
 mkdir "${BACKUP_DIR}"

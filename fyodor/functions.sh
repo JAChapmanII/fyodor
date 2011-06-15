@@ -76,7 +76,8 @@ function print_note ()
 # Create a directory for the current day
 function now ()
 {
-    mkdir -p `date +%F`
-    cd `date +%F`
+	dt="$(date +'%F')"
+	mkdir -p "$dt"
+	cd "$dt"
 }
 

@@ -8,7 +8,8 @@ JAP_DIR="~/${DATA_DIR}/japanese"
 function translate_japanese()
 {
 	if [[ -z "$(which convert 2>/dev/null)" ]]; then
-		return 1
+		reply "Host system does not have cowsay installed. Bug them."
+		return
 	fi
 
 	order="eng"

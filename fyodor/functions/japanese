@@ -7,6 +7,10 @@ JAP_DIR="~/${DATA_DIR}/japanese"
 
 function translate_japanese()
 {
+	if [[ -z "$(which convert 2>/dev/null)" ]]; then
+		return 1
+	fi
+
 	order="eng"
 	args="$(echo $* | head -n1)"
 	first="$(echo $args | cut -c1)"
@@ -48,7 +52,7 @@ function translate_japanese()
 		JISHO_ENG="&nolimit=1&page=&dict=edict&eng="
 		wget -q -U Mozilla -O "${1}.tmp" "${JISHO_JAP}${JAP}${JISHO_ENG}${ENG}"
 		sed '1,/<div id="result">/d' "${1}.tmp" |
-		egrep '(class="kanji"|kana_column|meanings_column)' |
+		grep -E '(class="kanji"|kana_column|meanings_column)' |
 		sed -e 's/<[^>]*>//g' > "$1"
 		rm "${1}.tmp"
 	fi

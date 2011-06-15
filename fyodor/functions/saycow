@@ -4,11 +4,11 @@
 function saycow()
 {
 	pushd "${DATA_DIR}"
-	if [[ -z "$(which cowsay)" ]]; then
+	if [[ -z "$(which cowsay 2>/dev/null)" ]]; then
 		reply "Host system does not have cowsay installed. Bug them."
 		return
 	fi
-	if [[ -z "$(which convert)" ]]; then
+	if [[ -z "$(which convert 2>/dev/null)" ]]; then
 		reply "Host system does not have imagemagick. Bug them."
 		return
 	fi

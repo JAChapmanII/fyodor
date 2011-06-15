@@ -64,14 +64,13 @@ Dependencies:
 
 Whoo, boy, let's see...
 	bash
+	coreutils
+		base64, tr
 	sed
 	tar
 	grep
-	tr
-	base64
-	lynx, links (TODO)
+	lynx
 	wget
-	core utils
 
 	If you want to use the cowsay module, these are needed:
 		convert, cowsay

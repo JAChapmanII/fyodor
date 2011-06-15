@@ -6,9 +6,8 @@ require_root
 pushd "${SRCROOT}"
 
 # Make sure that the backup attempting to be restored exists
-[ -d "${BACKUP_DIR}" ] || mkdir -p "${BACKUP_DIR}" #{{{
-if [ ! -f "${BACKUP_DIR}/$1" ]
-then
+[[ -d "${BACKUP_DIR}" ]] || mkdir -p "${BACKUP_DIR}" #{{{
+if [[ ! -f "${BACKUP_DIR}/$1" ]]; then
 	print_error "That backup does not actually exist, lo siento"
 	popd
 	exit 1
@@ -19,8 +18,7 @@ archive="home_${USERNAME}.bak.$dt.tar.gz"
 
 print_message "Backing up current /home/${USERNAME}"
 sudo tar -cf "${BACKUP_DIR}/$archive" "/home/${USERNAME}"
-if [ ! -f "${BACKUP_DIR}/$archive" ]
-then
+if [[ ! -f "${BACKUP_DIR}/$archive" ]]; then
 	print_error "Backup failed, exiting"
 	popd
 	exit 1

@@ -69,8 +69,7 @@ function parse_message() #{{{
 	message="$(echo $message |
 	sed -e 's/^[ \t]*\(.*\)[ \t]*$/\1/' -e 's/$/ &/' -e 's/[ \t]\+/ /g')"
 
-	if [ -z "$message" ]
-	then
+	if [[ -z "$message" ]]; then
 		print_error "This email is not formatted properly or has no message."
 		return
 	fi
@@ -79,8 +78,7 @@ function parse_message() #{{{
 
 	message="$(echo $message | head -n1)"
 	first="$(echo $message | cut -c1)"
-	while [ "$first" = "-" ]
-	do
+	while [[ "$first" = "-" ]]; do
 		arg="$(echo $message | cut -f1 -d' ')"
 		case "$arg" in
 			-*[Ss]*)
@@ -115,23 +113,19 @@ function parse_message() #{{{
 # SMS recipients message number
 function SMS() #{{{
 {
-	if [ -z "$1" ]
-	then
+	if [[ -z "$1" ]]; then
 		return 1
 	fi
 
-	if [ "$AMOUNT" = "0" ]
-	then
+	if (( "$AMOUNT" == 0 )); then
 		AMOUNT="25"
 	fi
 	print_message "Sending $AMOUNT message(s) to $ADDRESS: "
 
 	total="$(echo "$AMOUNT -1" | bc)"
 	message="$(echo $1 | sed 's/[ \t]\+/ /' | tr -cd '\11\12\15\40-\176')"
-	for i in {0..$total}
-	do
-		if [ "$message" = "" ]
-		then
+	for i in {0..$total}; do
+		if [[ -z "$message" ]]; then
 			print_note "Nothing left to send."
 			return
 		fi
@@ -153,8 +147,7 @@ function SMS() #{{{
 		$ {
 			s/.\{1,156\}\(.*\)/\1/p
 		}')"
-		if [ ! -z "$section" ]
-		then
+		if [[ -n "$section" ]]; then
 			print_note "Part $part:"
 			echo "$section"
 			echo "$i $section" | mail "$ADDRESS"
@@ -167,8 +160,7 @@ function SMS() #{{{
 function MMS() #{{{
 {
 	files="$(ls ${attachments})"
-	if [ -z "$1" ] && [ -z "$files" ]
-	then
+	if [[ -z "$1" ]] && [[ -z "$files" ]]; then
 		return 1
 	fi
 
@@ -183,22 +175,19 @@ function MMS() #{{{
 			domain=""
 			;;
 	esac #}}}
-	if [ -z "$domain" ]
-	then
+	if [[ -z "$domain" ]]; then
 		print_error "Couldn't determine what the domain maps to."
 		return 1
 	fi
 
-	if [ "$AMOUNT" = "0" ]
-	then
+	if (( "$AMOUNT" == 0 )); then
 		AMOUNT="25"
 	fi
 	print_message "Sending $AMOUNT message(s) to $ADDRESS with $files: "
 
 	total="$(echo "$AMOUNT -1" | bc)"
 	message="$(echo $1 | sed 's/[ \t]\+/ /' | tr -cd '\11\12\15\40-\176')"
-	for i in {0..$total}
-	do
+	for i in {0..$total}; do
 		section="$(echo $message | sed -n '
 		:add
 		$! {
@@ -236,14 +225,11 @@ $i $section
 
 		# Attach files if there are any. Attaches all files it can to all
 		# with absolutely no checks what-so-ever. Fix at some point {{{
-		if [ ! -z "$files" ]
-		then
-			for file in $files
-			do
-				if [ "$(file $attachments/$file | grep 'JPEG image data')" != '' ]
-				then
+		if [[ -n "$files" ]]; then
+			for file in $files; do
+				if [[ -n "$(file $attachments/$file | grep 'JPEG image data')" ]]; then
 					# Middle with $file if JPEG {{{
-					mail+="--__CONTENT_64564_PART_BOUNDARY__33243242__
+					mail="$mail--__CONTENT_64564_PART_BOUNDARY__33243242__
 Content-Type: image/jpeg;
   name=\"$file\"
 Content-Transfer-Encoding: base64
@@ -251,13 +237,12 @@ Content-Disposition: attachment;
 	filename=\"$file\"
 
 "
-					mail+="$(base64 $attachments/$file)
+					mail="$mail$(base64 $attachments/$file)
 " #}}}
 				fi
-				if [ "$(file $attachments/$file | grep 'PNG image data')" != '' ]
-				then
+				if [[ -n "$(file $attachments/$file | grep 'PNG image data')" ]]; then
 					# Middle with $file if PNG {{{
-					mail+="--__CONTENT_64564_PART_BOUNDARY__33243242__
+					mail="$mail--__CONTENT_64564_PART_BOUNDARY__33243242__
 Content-Type: image/png;
   name=\"$file\"
 Content-Transfer-Encoding: base64
@@ -265,29 +250,27 @@ Content-Disposition: attachment;
 	filename=\"$file\"
 
 "
-					mail+="$(base64 $attachments/$file)
+					mail="$mail$(base64 $attachments/$file)
 " #}}}
 				fi
 			done
 		fi #}}}
 
 		# Footer that ends everything {{{
-		mail+="
+		mail="$mail
 --__CONTENT_64564_PART_BOUNDARY__33243242__--
 " #}}}
 
 		# If there are files or some message, send the damn thing
-		if [ ! -z "$section" ] || [ ! -z "$files" ]
-		then
+		if [[ -n "$section" ]] || [[ -n "$files" ]]; then
 			print_note "Part $part:"
 			echo "$section"
-			echo "$mail" | msmtp "${number}@${domain}"
+			echo "$mail" | mail "${number}@${domain}"
 		fi
 		sleep 1
 	done
 
-	for file in $files
-	do
+	for file in $files; do
 		rm ${attachments}/$file
 	done
 } #}}}
@@ -296,8 +279,7 @@ Content-Disposition: attachment;
 # EMAIL recipients message number
 function EMAIL() #{{{
 {
-	if [ -z "$1" ]
-	then
+	if [[ -z "$1" ]]; then
 		return 1
 	fi
 	files="$(ls ${attachments})"
@@ -307,7 +289,6 @@ function EMAIL() #{{{
 	message="$(echo $1 | sed 's/[ \t]\+/ /' | tr -cd '\11\12\15\40-\176')"
 
 	# Header with $section {{{
-	mail=""
 	mail="MIME-Version:1.0
 Content-Type: multipart/mixed;
   boundary=\"__CONTENT_64564_PART_BOUNDARY__33243242__\"
@@ -324,14 +305,11 @@ $message
 
 	# Attach files if there are any. Attaches all files it can to all
 	# with absolutely no checks what-so-ever. Fix at some point {{{
-	if [ ! -z "$files" ]
-	then
-		for file in $files
-		do
-			if [ "$(file $attachments/$file | grep 'JPEG image data')" != '' ]
-			then
+	if [[ -n "$files" ]]; then
+		for file in $files; do
+			if [[ -n "$(file $attachments/$file | grep 'JPEG image data')" ]]; then
 				# Middle with $file if JPEG {{{
-				mail+="--__CONTENT_64564_PART_BOUNDARY__33243242__
+				mail="$mail--__CONTENT_64564_PART_BOUNDARY__33243242__
 Content-Type: image/jpeg;
   name=\"$file\"
 Content-Transfer-Encoding: base64
@@ -339,13 +317,12 @@ Content-Disposition: attachment;
 	filename=\"$file\"
 
 "
-				mail+="$(base64 $attachments/$file)
+				mail="$mail$(base64 $attachments/$file)
 " #}}}
 			fi
-			if [ "$(file $attachments/$file | grep 'PNG image data')" != '' ]
-			then
+			if [[ -n "$(file $attachments/$file | grep 'PNG image data')" ]]; then
 				# Middle with $file if PNG {{{
-				mail+="--__CONTENT_64564_PART_BOUNDARY__33243242__
+				mail="$mail--__CONTENT_64564_PART_BOUNDARY__33243242__
 Content-Type: image/png;
   name=\"$file\"
 Content-Transfer-Encoding: base64
@@ -353,26 +330,24 @@ Content-Disposition: attachment;
 	filename=\"$file\"
 
 "
-				mail+="$(base64 $attachments/$file)
+				mail="$mail$(base64 $attachments/$file)
 " #}}}
 			fi
 		done
 	fi #}}}
 
 	# Footer that ends everything {{{
-	mail+="
+	mail="$mail
 --__CONTENT_64564_PART_BOUNDARY__33243242__--
 " #}}}
 
 	# If there are files or some message, send the damn thing
-	if [ ! -z "$message" ] || [ ! -z "$files" ]
-	then
+	if [[ -n "$message" ]] || [[ -n "$files" ]]; then
 		echo $message
-		echo "$mail" | msmtp "$ADDRESS"
+		echo "$mail" | mail "$ADDRESS"
 	fi
 
-	for file in $files
-	do
+	for file in $files; do
 		rm ${attachments}/$file
 	done
 } #}}}
@@ -380,21 +355,14 @@ Content-Disposition: attachment;
 # reply
 function reply() #{{{
 {
-	if [ -z "$1" ]
-	then
+	if [[ -z "$1" ]]; then
 		return
 	fi
-	if [ "$RETURN_TYPE" = "MMS" ]
-	then
-		MMS "$1"
-	else
-		if [ "$RETURN_TYPE" = "EMAIL" ]
-		then
-			EMAIL "$1"
-		else
-			SMS "$1"
-		fi
-	fi
+	case $RETURN_TYPE in
+		  MMS)	MMS "$1";;
+		EMAIL)	EMAIL "$1";;
+		    *)	SMS "$1";;
+	esac
 } #}}}
 
 # list_functions
@@ -406,8 +374,7 @@ function list_functions() # {{{
 # help
 function help() #{{{
 {
-	if [ ! -z "$1" ] && [ "$1" = "me" ]
-	then
+	if [[ -n "$1" ]] && [[ "$1" = "me" ]]; then
 		reply "I'm sorry, it seems that we can't help you at this time. Please seek psychiatric help immediately."
 	else
 		reply "Use 'list' to get a list of functions. Hopefully, they'll be self explanatory, else text djef., else you're screwed right now :p"
@@ -417,14 +384,11 @@ function help() #{{{
 # map
 function map() #{{{
 {
-	if [ -z "$1" ]
-	then
+	if [[ -z "$1" ]]; then
 		return
 	fi
-	for i in {1..${#FUNCTION_FROM[*]}}
-	do
-		if [ "$1" = "${FUNCTION_FROM[$i]}" ]
-		then
+	for i in {1..${#FUNCTION_FROM[*]}}; do
+		if [[ "$1" = "${FUNCTION_FROM[$i]}" ]]; then
 			reply "Function ${FUNCTION_FROM[$i]} maps to ${FUNCTION_TO[$i]}"
 			return
 		fi

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #&` [Cc][Aa][Ll]*|[Bb][Cc]->calculate
 #&` [Dd][Cc]->dc
 

@@ -1,12 +1,12 @@
-#!/bin/sh
+#!/bin/bash
 #&` [Gg][Oo]*[Gg]*->google
 
 function google()
 {
 	pushd "${DATA_DIR}"
 	wget -U Mozilla -q -O "google.html" "http://www.google.com/search?q=$1"
-	results="$(cat 'google.html' | lynx --stdin --nolist --dump |
-		sed '1,/Results/d')"
+	results="$(cat 'google.html' | lynx --stdin --nolist --dump)"
+	results="$(echo $results | sed '1,/Results/d')"
+	rm 'google.html'
 	reply "$results"
-	popd
 }

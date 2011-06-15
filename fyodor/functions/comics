@@ -1,34 +1,25 @@
-#!/bin/zsh
+#!/bin/bash
 #&` [Xx][Kk][Cc][Dd]->xkcd
 
 COMIC_DIR="~/${DATA_DIR}/comics"
-[ -d "${COMIC_DIR}" ] || mkdir -p "${COMIC_DIR}"
+[[ -d "${COMIC_DIR}" ]] || mkdir -p "${COMIC_DIR}"
 
 # xkcd
 function xkcd() #{{{
 {
-	pushd "${COMIC_DIR}"
+	cd "${COMIC_DIR}"
 	wget -q -O "xkcd.main" "http://www.xkcd.com"
 	MAX="$(sed -n 's_.*Permanent link to this comic: http://xkcd.com/\([0-9]\+\)/.*_\1_p' xkcd.main)"
-	if [ -z "$MAX" ]
-	then
-		MAX="725" # The most recent comic as of 11/04/10
+	if [[ -z "$MAX" ]]; then
+		MAX="911" # The most recent comic as of 6/14/11
 	fi
 
-	if [ -z "$1" ]
-	then
-		requested="$MAX"
-	else
-		if [ "$1" -gt "$MAX" ] || [ "$1" -lt "1" ]
-		then
-			requested="$(echo "$RANDOM % $MAX + 1" | bc)"
-		else
-			requested="$1"
-		fi
+	requested="${1-$MAX}"
+	if (( "$requested" > "$MAX" )) || (( "$requested" < "1" )); then
+		requested="$(echo "$RANDOM % $MAX + 1" | bc)"
 	fi
 
-	if [ ! -f "xkcd_$requested" ]
-	then
+	if [[ ! -f "xkcd_$requested" ]]; then
 		wget -q -O "xkcd_$requested" "http://www.xkcd.com/$requested"
 		src="$(sed -n '/^<img/ s/.*src="\([^"]*\)".*/\1/p' "xkcd_$requested")"
 		title="$(sed -n '/^<img/ s/.*alt="\([^"]*\)".*/\1/p' "xkcd_$requested")"
@@ -40,17 +31,17 @@ function xkcd() #{{{
 		echo "alt=\"$alt\"" >> "xkcd_$requested"
 	fi
 
-	src="$(sed -n 's/.*src="\([^"]*\)".*/\1/p' "xkcd_$requested")"
-	title="$(sed -n 's/.*title="\([^"]*\)".*/\1/p' "xkcd_$requested")"
-	alt="$(sed -n 's/.*alt="\([^"]*\)".*/\1/p' "xkcd_$requested")"
+	src="${src-$(sed -n 's/.*src="\([^"]*\)".*/\1/p' "xkcd_$requested")}"
+	title="${title-$(sed -n 's/.*title="\([^"]*\)".*/\1/p' "xkcd_$requested")}"
+	alt="${alt-$(sed -n 's/.*alt="\([^"]*\)".*/\1/p' "xkcd_$requested")}"
 
-	if [ -z "$src" ] || [ -z "$title" ] || [ -z "$alt" ] || [ ! -f "$(basename $src)" ]
-	then
+	if [[ -z "$src" ]] || [[ -z "$title" ]] || [[ -z "$alt" ]] || 
+		[[ ! -f "$(basename $src)" ]]; then
 		return 1
 	fi
-	cp "$(basename $src)" $attachments
+
+	cp "$(basename $src)" "$attachments"
 	MMS "$title
 	[$alt]"
-	popd
 } #}}}
 

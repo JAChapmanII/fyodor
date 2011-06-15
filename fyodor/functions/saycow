@@ -1,19 +1,25 @@
-#!/bin/sh
+#!/bin/bash
 #&` [Cc][Oo][Ww]*->saycow
 
 function saycow()
 {
 	pushd "${DATA_DIR}"
+	if [[ -z "$(which cowsay)" ]]; then
+		reply "Host system does not have cowsay installed. Bug them."
+		return
+	fi
+	if [[ -z "$(which convert)" ]]; then
+		reply "Host system does not have imagemagick. Bug them."
+		return
+	fi
+
 	cow="$(eval cowsay $@ | sed 's_\\_\\\\_g')"
 	convert -background white -fill black -font Inconsolata-Medium \
 		-pointsize 18 label:"$cow" "cow.png"
-	if [ -f "cow.png" ]
-	then
+	if [[ -f "cow.png" ]]; then
 		mv "cow.png" ${attachments}
 		MMS
-		popd
 	else
-		popd
 		return 1
 	fi
 }

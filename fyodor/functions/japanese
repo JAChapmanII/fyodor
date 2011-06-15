@@ -1,17 +1,16 @@
-#!/bin/zsh
+#!/bin/bash
 #&` [Ee][Nn][Gg]*[Jj][Aa][Pp]*->engjap
 #&` [Jj][Aa][Pp]*[Ee][Nn][Gg]*->japeng
 
 JAP_DIR="~/${DATA_DIR}/japanese"
-[ -d "${JAP_DIR}" ] || mkdir -p "${JAP_DIR}"
+[[ -d "${JAP_DIR}" ]] || mkdir -p "${JAP_DIR}"
 
 function translate_japanese()
 {
 	order="eng"
 	args="$(echo $* | head -n1)"
 	first="$(echo $args | cut -c1)"
-	while [ "$first" = "-" ]
-	do
+	while [[ "$first" = "-" ]]; do
 		arg="$(echo $args | cut -f1 -d' ')"
 		case "$arg" in
 			-[Jj]|--[Jj][Aa][Pp][Aa][Nn][Ee][Ss][Ee])

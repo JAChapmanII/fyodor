@@ -476,7 +476,7 @@ function load() #{{{
 	for i in {1..${#FUNCTION_FROM[*]}}
 	do
 		echo "		${FUNCTION_FROM[$i]})" >> ${exec_message}
-		echo "			${FUNCTION_TO[$i]} \$ARGUMENTS" >> ${exec_message}
+		echo "			(${FUNCTION_TO[$i]} \$ARGUMENTS)" >> ${exec_message}
 		echo "			;;" >> ${exec_message}
 	done
 	echo "		*)" >> ${exec_message}

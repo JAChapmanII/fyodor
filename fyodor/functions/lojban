@@ -1,27 +1,23 @@
-#!/bin/sh
+#!/bin/bash
 #&` [Ll][Oo][Jj]*->lojban
 
 LOJ_DIR="~/${DATA_DIR}/lojban"
-[ -d "${LOJ_DIR}" ] || mkdir -p "${LOJ_DIR}"
+[[ -d "${LOJ_DIR}" ]] || mkdir -p "${LOJ_DIR}"
 
 function lojban()
 {
 	pushd "${LOJ_DIR}"
-	if [ -z "$1" ]
-	then
+	if [[ -z "$1" ]]; then
 		reply "Please specify a search term."
-		popd
-		return
-	fi
-	result="$(grep "$1" "cmavo" "cmavo selma'o" "gismu" "lujvo" "rafsi" |
-	sed 's/[ \t]\+/ /g')"
-	if [ -z "$result" ]
-	then
-		reply "No results for your search term."
-		popd
 		return
 	fi
 
-	reply $result
-	popd
+	result="$(grep "$1" "cmavo" "cmavo selma'o" "gismu" "lujvo" "rafsi" |
+	sed 's/[ \t]\+/ /g')"
+
+	if [[ -z "$result" ]]; then
+		reply "No results for your search term."
+	else
+		reply $result
+	fi
 }

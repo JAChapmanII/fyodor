@@ -1,47 +1,38 @@
-#!/bin/zsh
+#!/bin/bash
 #&` [Dd][Ee][Ff]*->define
 #&` [Rr]*[Dd][Ee][Ff]*->redefine
 
 DEF_DIR="~/${DATA_DIR}/defs"
-[ -d "${DEF_DIR}" ] || mkdir -p "${DEF_DIR}"
+[[ -d "${DEF_DIR}" ]] || mkdir -p "${DEF_DIR}"
 
-# define -- defines a word/words using google
+# define -- defines a word using google
 function define() #{{{
 {
 	pushd "${DEF_DIR}"
 	GOOGWORD="http://www.google.com/search?q=define: "
-	for word in $@
-	do
-		if [ ! -f "$word" ];
-		then
-			lynx --nolist --dump "${GOOGWORD} $word" | tee "${word}.tmp" > "$word"
-			sed -i -e '1,/Definitions/d' "$word"
-			if [ "$(cat "$word")" = "" ]
-			then
-				sed -n '/Did you mean:/ s/[^:]*: //p' "${word}.tmp" > "$word"
-				if [ "$(cat "$word")" = "" ]
-				then
-					echo "No definitions found for ${word}. If you think this is a mistake, try 'rdef $word'" > "$word"
-				fi
+	word="${@-$(shuf /usr/share/dict/words | head -n1)}"
+	reply "We're broken right now. Please try again when Jeff gets more time, or submit a patch."
+
+	return 0
+
+	if [[ ! -f "$word" ]]; then
+		lynx --nolist --dump "${GOOGWORD} $word" | tee "${word}.tmp" > "$word"
+		sed -i -e '1,/Definitions/d' "$word"
+		if [[ "$(cat "$word")" = "" ]]; then
+			sed -n '/Did you mean:/ s/[^:]*: //p' "${word}.tmp" > "$word"
+			if [[ -z "$(cat "$word")" ]]; then
+				echo "No definitions found for ${word}. If you think this is a mistake, try 'rdef $word'" > "$word"
 			fi
-			rm "${word}.tmp"
 		fi
-		reply "$(cat "$word")"
-	done
-	popd
+		rm "${word}.tmp"
+	fi
+	reply "$(cat "$word")"
 } #}}}
 
 function redefine() #{{{
 {
 	pushd "${DEF_DIR}"
-	for arg in $@
-	do
-		if [ -f "$arg" ]
-		then
-			rm "$arg"
-		fi
-	done
-	popd
+	rm -f "$@"
 	define $*
 } #}}}
 

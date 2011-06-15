@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #&` [Ww][Ww][Ww]*->www
 
 function www()
@@ -7,5 +7,4 @@ function www()
 	wget -U Mozilla -q -O "www.html" "$1"
 	results="$(cat 'google.html' | lynx --stdin --nolist --dump)"
 	reply "$results"
-	popd
 }

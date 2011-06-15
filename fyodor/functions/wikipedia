@@ -1,24 +1,22 @@
-#!/bin/sh
+#!/bin/bash
 #&` [Ww][Ii][Kk][Ii]*->wikipedia
 #&` [Rr]*[Ww][Ii][Kk][Ii]*->rewikipedia
 
 WIKI_DIR="~/${DATA_DIR}/wiki"
-[ -d "${WIKI_DIR}" ] || mkdir -p "${WIKI_DIR}"
+[[ -d "${WIKI_DIR}" ]] || mkdir -p "${WIKI_DIR}"
 
 # wikipedia
 function wikipedia() #{{{
 {
-	if [ -z "$1" ]
-	then
+	if [[ -z "$1" ]]; then
 		return 1
 	fi
+
 	pushd "${WIKI_DIR}"
-	if [ ! -f "$1" ]
-	then
+	if [[ ! -f "$1" ]]; then
 		WIKI="http://en.wikipedia.org/wiki"
 		wget -q -U Mozilla -O "$1" "${WIKI}/$1"
-		if [ "$(cat "$1")" = "" ]
-		then
+		if [[ -z "$(cat "$1")" ]]; then
 			wget -q -U Mozilla -O "$1" "${WIKI}/Special:Search/$1"
 		fi
 		cat "$1" | sed -n '/<p>/,$ p' |
@@ -29,36 +27,29 @@ function wikipedia() #{{{
 						}
 					d
 					}' -e 's/\[.*\]//g' -e 's/\^//g' > "${1}.tmp"
-		if [ "$(grep 'Did you mean: ' "${1}.tmp")" != "" ]
-		then
+		if [[ -n "$(grep 'Did you mean: ' "${1}.tmp")" ]]; then
 			grep 'Did you mean: ' "${1}.tmp" > "$1"
 		else
 			cp "${1}.tmp" "${1}"
 		fi
 		rm "${1}.tmp"
 	fi
-	if [ -z "$(cat "$1")" ]
-	then
+
+	if [[ -z "$(cat "$1")" ]]; then
 		reply "There was some error in the wiki-ing process. Saving a note so that djef. can look at this page. Sorry for the inconvinience and thanks!"
 	fi
 	reply "$(cat "$1")"
-	popd
-	return
 } #}}}
 
 # rewikipedia
 function rewikipedia() #{{{
 {
-	if [ -z "$1" ]
-	then
+	if [[ -z "$1" ]]; then
 		return 1
 	fi
+
 	pushd "${WIKI_DIR}"
-	if [ -f "$1" ]
-	then
-		rm "$1"
-	fi
-	popd
+	rm -f "$1"
 	wikipedia "$1"
 } #}}}
 

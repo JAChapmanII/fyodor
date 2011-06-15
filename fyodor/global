@@ -7,10 +7,9 @@ pushd ~
 DATA_DIR="data"
 [ -d "${DATA_DIR}" ] || mkdir -p "${DATA_DIR}"
 
-home="/home/fyodor"
+home="/home/f"
 prefix="$home"
-maildir="${prefix}/Mail"
-inbox="${maildir}/GMail/INBOX"
+inbox="${prefix}/email/"
 parsebox="${inbox}/new"
 processbox="${prefix}/process"
 processed="${prefix}/processed"

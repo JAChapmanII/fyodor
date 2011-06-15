@@ -9,12 +9,10 @@ The code is a mess because I've been using this as a project to learn to shell
 script. [And because after long absences I try to re-make sense of it all and
 start adding in a bunch of more stuff]
 
+
 Building:
 
 Set up the config file. Start with mv config{.example,}
-Then, change the email username and password to be an actual gmail user/pass.
-	I suggest you create account just for this.
-	[Especially since GMail could shut it down at any time ;)]
 Change the ROOT_DIR variable to point to the folder holding this file.
 	This is important, the $(whoami) code fails for sure, unless you do
 	everything as root!
@@ -30,30 +28,29 @@ You may want to either create a .${SHELL}rc and put it in the fyodor folder to
 be copied over, or tell it to use yours by adding it to the COPY_FILES array in
 the config
 Something else that may save you some headache is to use the /etc/limits.conf
-file to limit the number of processes fyoodor may use. I'm not sure if it's bad
-practice to touch it, so I'm not going to for you.
+file to limit the number of processes fyoodor may use. 
 
 Run install with root privileges.
-	sudo ./install
+		sudo ./install
+	[If you don't have sudo, I assume you know how to work it ;)]
 
 	Yes, I barely trust this damn thing even not to fsck my system. Please,
 	inspect the code and prepare for a potential dd if=/dev/zero of=/dev/sda . I
-	will try to get this a bit more OK in the future, hopefully through the use
-	of at least some daemonization and a proper installation. It is slated for
-	ASAP
+	I will try to get this a bit more OK in the future, hopefully through the
+	use of at least some daemonization and a proper installation. It is slated
+	for ASAP. [I typed that over a year ago, I'd say. Good luck with it.]
 
-Login as the new user and run ./fetchmail and ./fyodor
-	[Both will sit there and use up a terminal, so I recommend a terminal
+Login as the new user and run ./fyodor
+	[It will sit there and use up a terminal, so I recommend a terminal
 	multiplexer such as tmux. Most of the output won't be what you want anyway]
 
 If there are any problems (I'm sure there will be, don't worry) try to figure
 them out :p
 	If you can, it'd be a great help to me if you could email me either your
 	problem/solution or even a patch.
-	If you can't, then email me or open a bug on github or something. Send me as
-	much output from stuff as you can. I can't remember if there are any verbose
-	switches or not, but try some combinations of things that you think might
-	make output verbose :)
+	If you can't, then email me or something. Send me as much output from stuff
+	as you can. I can't remember if there are any verbose switches or not, but
+	try some combinations of things that you think might make output verbose :)
 
 
 Using:
@@ -61,27 +58,26 @@ Using:
 Text "help" to your fyodor's email address.
 Email "help" to your fyodor's email address.
 And, coming soon: run fyodor from any terminal!
+[peh, "soon" lol]
 
 Dependencies:
 
 Whoo, boy, let's see...
-	bash, zsh [yes, I know...]
+	bash
 	sed
-	offlineimap
 	tar
-	push/popd (separate?)
-	msmtp
-	pgrep
 	grep
 	tr
 	base64
 	lynx, links (TODO)
 	wget
-	egrep
-	convert
-	cowsay
 	core utils
-	sudo
+
+	If you want to use the cowsay module, these are needed:
+		convert, cowsay
+	I think you need convert for the japanese function too. These will try to
+	fail gracefully, with a message, if the needed programs are not installed.
+
 A major todo is to shorten this up, reuse things that can be reused for multiple
 dependencies, and modularize it so that you know you only need cowsay for the
 cow function of fyodor.

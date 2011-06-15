@@ -1,6 +1,6 @@
 ROOT_DIR="/home/$(whoami)/src/sh/fyodor"	# location of this file and the fyodor dir
 PROJECT="fyodor"							# name of src dir in ${SRCROOT} fyodor is what you pull
-USERNAME="fyodor"							# Name of user to install as
+USERNAME="f"							# Name of user to install as
 
 BACKUP_DIR="backup"	# dir to store backups in
 

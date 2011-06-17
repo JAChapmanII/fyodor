@@ -71,6 +71,7 @@ Whoo, boy, let's see...
 	grep
 	lynx
 	wget
+	/usr/share/dict/words (provided by words package on Arch)
 
 	If you want to use the cowsay module, these are needed:
 		convert, cowsay
